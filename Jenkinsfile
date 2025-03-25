@@ -1,10 +1,6 @@
 pipeline {
     agent any
-    tools {
-        maven 'M3'
-        jdk 'JDK17'
-    }
-    
+
     options {
         githubNotify()
         disableConcurrentBuilds()
