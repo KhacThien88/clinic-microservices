@@ -33,7 +33,7 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "pets")
-public class Pet {
+public class TempPet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
