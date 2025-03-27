@@ -209,9 +209,6 @@ def buildAndTestService(serviceName) {
         stage("Test ${serviceName}") {
             try {
                 // Run tests with JaCoCo coverage
-                sh "../mvn org.jacoco:jacoco-maven-plugin:0.8.10:prepare-agent"
-                sh "../mvn test"
-                sh "../mvn org.jacoco:jacoco-maven-plugin:0.8.10:report"
                 sh "../mvnw test jacoco:report"
                 
                 // Publish test results
