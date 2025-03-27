@@ -2,28 +2,55 @@ pipeline {
     agent any
     
     options {
-        skipDefaultCheckout true
+        skipDefaultCheckout false
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+    
+    environment {
+        SERVICES = ['vets-service', 'visits-service', 'customers-service', 'api-gateway']
     }
     
     stages {
-        stage('Check Changed Services') {
+        stage('Initialize') {
             steps {
                 script {
-                    // Get changed files
+                    // Clean workspace before checkout
+                    cleanWs()
+                    
+                    // Checkout source code
+                    checkout scm
+                    
+                    // Verify git is available
+                    sh 'git --version'
+                }
+            }
+        }
+        
+        stage('Detect Changes') {
+            steps {
+                script {
+                    // Get changed files with improved detection
                     def changedFiles = getChangedFiles()
                     
                     // Determine which services were modified
                     def changedServices = getChangedServices(changedFiles)
                     
-                    // Set environment variable for downstream stages
-                    env.CHANGED_SERVICES = changedServices.join(',')
+                    // If manual trigger, build all services
+                    if (currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')) {
+                        echo "Manual trigger detected - building all services"
+                        env.CHANGED_SERVICES = env.SERVICES.join(',')
+                    } else {
+                        // Automatic trigger - only build changed services
+                        env.CHANGED_SERVICES = changedServices.join(',')
+                    }
+                    
+                    echo "Changed services: ${env.CHANGED_SERVICES}"
+                    echo "All services: ${env.SERVICES}"
                 }
-                
-                echo "Changed services: ${env.CHANGED_SERVICES}"
             }
         }
         
-        stage('Parallel Build and Test') {
+        stage('Build and Test') {
             when {
                 expression { return env.CHANGED_SERVICES }
             }
@@ -58,33 +85,82 @@ pipeline {
                         buildAndTestService('customers-service')
                     }
                 }
+                
+                stage('Build and Test api-gateway') {
+                    when {
+                        expression { return env.CHANGED_SERVICES.contains('api-gateway') }
+                    }
+                    
+                    steps {
+                        buildAndTestService('api-gateway')
+                    }
+                }
             }
         }
     }
     
     post {
         always {
-            // Clean up workspace
-            cleanWs()
+            script {
+                // Archive important artifacts
+                archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+                
+                // Clean up workspace
+                cleanWs()
+            }
+        }
+        
+        success {
+            echo 'Pipeline completed successfully'
+        }
+        
+        failure {
+            echo 'Pipeline failed'
+            emailext body: '${DEFAULT_CONTENT}', 
+                    subject: 'Pipeline Failed: ${JOB_NAME} - Build #${BUILD_NUMBER}', 
+                    to: 'dev-team@example.com'
         }
     }
 }
 
 // Helper functions
 def getChangedFiles() {
-    // For multibranch pipeline, get changes from SCM
-    def changeLogSets = currentBuild.changeSets
     def changedFiles = []
     
-    for (int i = 0; i < changeLogSets.size(); i++) {
-        def entries = changeLogSets[i].items
-        for (int j = 0; j < entries.length; j++) {
-            def entry = entries[j]
-            def files = new ArrayList(entry.affectedFiles)
-            for (int k = 0; k < files.size(); k++) {
-                changedFiles.add(files[k].path)
+    try {
+        // Method 1: Check SCM changes (works for automatic triggers)
+        if (currentBuild.changeSets) {
+            currentBuild.changeSets.each { changeSet ->
+                changeSet.items.each { item ->
+                    item.affectedFiles.each { file ->
+                        changedFiles << file.path
+                    }
+                }
+            }
+            echo "Detected changes via SCM: ${changedFiles}"
+        }
+        
+        // Method 2: Git diff (works for manual triggers and fallback)
+        if (changedFiles.isEmpty()) {
+            def gitDiff = sh(script: "git diff --name-only HEAD~1", returnStdout: true).trim()
+            if (gitDiff) {
+                changedFiles = gitDiff.split('\n').toList()
+                echo "Detected changes via git diff: ${changedFiles}"
             }
         }
+        
+        // Method 3: Last commit (final fallback)
+        if (changedFiles.isEmpty()) {
+            def lastCommit = sh(script: "git show --name-only --pretty=format:''", returnStdout: true).trim()
+            if (lastCommit) {
+                changedFiles = lastCommit.split('\n').toList()
+                echo "Detected changes via last commit: ${changedFiles}"
+            }
+        }
+    } catch (Exception e) {
+        echo "Error detecting changed files: ${e.message}"
+        // If we can't determine changes, build all services
+        changedFiles = ['ALL'] // Special value that will trigger all services
     }
     
     return changedFiles.unique()
@@ -93,15 +169,28 @@ def getChangedFiles() {
 def getChangedServices(changedFiles) {
     def services = []
     
+    // If we couldn't determine changes, build all services
+    if (changedFiles == ['ALL']) {
+        return env.SERVICES
+    }
+    
     changedFiles.each { file ->
-        if (file.startsWith('spring-petclinic-vets-service')) {
+        def normalizedFile = file.toLowerCase()
+        
+        if (normalizedFile.contains('vets-service')) {
             services << 'vets-service'
         }
-        else if (file.startsWith('spring-petclinic-visits-service')) {
+        else if (normalizedFile.contains('visits-service')) {
             services << 'visits-service'
         }
-        else if (file.startsWith('spring-petclinic-customers-service')) {
+        else if (normalizedFile.contains('customers-service')) {
             services << 'customers-service'
+        }
+        else if (normalizedFile.contains('api-gateway')) {
+            services << 'api-gateway'
+        }
+        else {
+            echo "File not mapped to any service: ${file}"
         }
     }
     
@@ -143,17 +232,22 @@ def buildAndTestService(serviceName) {
                 }
             } catch (Exception e) {
                 currentBuild.result = 'FAILURE'
-                throw e
+                error("Failed testing ${serviceName}: ${e.message}")
             }
         }
     }
 }
 
 def getCoveragePercentage(coverageFile) {
-    def parser = new XmlParser().parse(coverageFile)
-    def counter = parser.counter.find { it.@type == 'INSTRUCTION' }
-    def covered = counter.@covered.toDouble()
-    def missed = counter.@missed.toDouble()
-    def percentage = (covered / (covered + missed)) * 100
-    return Math.round(percentage * 100) / 100
+    try {
+        def parser = new XmlParser().parse(coverageFile)
+        def counter = parser.counter.find { it.@type == 'INSTRUCTION' }
+        def covered = counter.@covered.toDouble()
+        def missed = counter.@missed.toDouble()
+        def percentage = (covered / (covered + missed)) * 100
+        return Math.round(percentage * 100) / 100
+    } catch (Exception e) {
+        echo "Error parsing coverage file: ${e.message}"
+        return 0
+    }
 }
