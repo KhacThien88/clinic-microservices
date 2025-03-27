@@ -110,16 +110,16 @@ pipeline {
             }
         }
         
-        success {
-            echo 'Pipeline completed successfully'
-        }
+        // success {
+        //     echo 'Pipeline completed successfully'
+        // }
         
-        failure {
-            echo 'Pipeline failed'
-            emailext body: '${DEFAULT_CONTENT}', 
-                    subject: 'Pipeline Failed: ${JOB_NAME} - Build #${BUILD_NUMBER}', 
-                    to: 'KTeightop1512@gmail.com'
-        }
+        // failure {
+        //     echo 'Pipeline failed'
+        //     emailext body: '${DEFAULT_CONTENT}', 
+        //             subject: 'Pipeline Failed: ${JOB_NAME} - Build #${BUILD_NUMBER}', 
+        //             to: 'KTeightop1512@gmail.com'
+        // }
     }
 }
 
@@ -201,14 +201,14 @@ def buildAndTestService(serviceName) {
     dir("spring-petclinic-${serviceName}") {
         // Stage 1: Build
         stage("Build ${serviceName}") {
-            sh "./mvnw clean package -DskipTests"
+            sh "../mvnw clean package -DskipTests"
         }
         
         // Stage 2: Test with coverage
         stage("Test ${serviceName}") {
             try {
                 // Run tests with JaCoCo coverage
-                sh "./mvnw test jacoco:report"
+                sh "../mvnw test jacoco:report"
                 
                 // Publish test results
                 junit "**/target/surefire-reports/*.xml"
