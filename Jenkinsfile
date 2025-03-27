@@ -118,7 +118,7 @@ pipeline {
             echo 'Pipeline failed'
             emailext body: '${DEFAULT_CONTENT}', 
                     subject: 'Pipeline Failed: ${JOB_NAME} - Build #${BUILD_NUMBER}', 
-                    to: 'dev-team@example.com'
+                    to: 'KTeightop1512@gmail.com'
         }
     }
 }
