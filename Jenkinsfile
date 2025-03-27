@@ -7,7 +7,7 @@ pipeline {
     }
     
     environment {
-        SERVICES = ['vets-service', 'visits-service', 'customers-service', 'api-gateway']
+        SERVICES = 'vets-service,visits-service,customers-service,api-gateway'
     }
     
     stages {
@@ -38,7 +38,7 @@ pipeline {
                     // If manual trigger, build all services
                     if (currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')) {
                         echo "Manual trigger detected - building all services"
-                        env.CHANGED_SERVICES = env.SERVICES.join(',')
+                        env.CHANGED_SERVICES = env.SERVICES
                     } else {
                         // Automatic trigger - only build changed services
                         env.CHANGED_SERVICES = changedServices.join(',')
@@ -171,7 +171,7 @@ def getChangedServices(changedFiles) {
     
     // If we couldn't determine changes, build all services
     if (changedFiles == ['ALL']) {
-        return env.SERVICES
+        return env.SERVICES.tokenize(',')
     }
     
     changedFiles.each { file ->
