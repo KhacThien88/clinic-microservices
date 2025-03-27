@@ -209,7 +209,8 @@ def buildAndTestService(serviceName) {
         stage("Test ${serviceName}") {
             try {
                 // Run tests with JaCoCo coverage
-                sh "../mvnw test jacoco:report"
+
+                sh "../mvnw test org.jacoco:jacoco-maven-plugin:0.8.10:report"
                 
                 // Publish test results
                 junit "**/target/surefire-reports/*.xml"
