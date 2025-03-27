@@ -20,6 +20,7 @@ pipeline {
                     // Checkout source code
                     checkout scm
                     
+                    sh 'chmod +x mvnw'
                     // Verify git is available
                     sh 'git --version'
                 }
