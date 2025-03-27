@@ -202,7 +202,7 @@ def buildAndTestService(serviceName) {
     dir("spring-petclinic-${serviceName}") {
         // Stage 1: Build
         stage("Build ${serviceName}") {
-            sh "../mvnw clean package -DskipTests"
+            sh "../mvnw clean install -DskipTests"
         }
         
         // Stage 2: Test with coverage
