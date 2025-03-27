@@ -11,6 +11,6 @@ public class FallbackController {
     @PostMapping("/fallback")
     public ResponseEntity<String> fallback() {
         return ResponseEntity.status(HttpStatus.SC_SERVICE_UNAVAILABLE)
-                .body("Chat is currently unavailable. Please try again later.");
+                .body("Chat is currently unavailable. Please try again later or import API chatbot.");
     }
 }
