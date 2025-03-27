@@ -105,7 +105,7 @@ pipeline {
             script {
                 // Archive important artifacts
                 archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
-                
+                sh 'rm -rf /var/lib/jenkins/jobs/*/builds/*'
                 // Clean up workspace
                 cleanWs()
             }
