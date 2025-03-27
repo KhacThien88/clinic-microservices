@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     options {
-        githubNotify()
         disableConcurrentBuilds()
         timeout(time: 30, unit: 'MINUTES')
     }
@@ -16,6 +15,8 @@ pipeline {
                     env.CHANGED_SERVICES = changes.join(',')
                     echo "Modified services: ${env.CHANGED_SERVICES}"
                 }
+                // Notify GitHub about build start
+                githubNotify status: 'PENDING', context: 'Jenkins CI', description: 'Build started'
             }
         }
 
@@ -33,6 +34,9 @@ pipeline {
                     services.each { service ->
                         dir(service) {
                             try {
+                                // Notify GitHub about test start for this service
+                                githubNotify status: 'PENDING', context: "Jenkins CI - ${service}", description: 'Tests running'
+                                
                                 // Run tests with JaCoCo coverage
                                 sh """
                                     ../mvnw clean test \\
@@ -48,11 +52,14 @@ pipeline {
                                 echo "${service} test coverage: ${coverage}%"
                                 
                                 if (coverage < 70.0) {
+                                    githubNotify status: 'FAILURE', context: "Jenkins CI - ${service}", description: "Coverage ${coverage}% < 70%"
                                     error("${service} coverage ${coverage}% < 70% - Pipeline failed!")
+                                } else {
+                                    githubNotify status: 'SUCCESS', context: "Jenkins CI - ${service}", description: "Tests passed (${coverage}% coverage)"
                                 }
                                 
                             } catch (err) {
-                                githubNotify status: 'FAILURE', context: "Jenkins CI - ${service}"
+                                githubNotify status: 'FAILURE', context: "Jenkins CI - ${service}", description: 'Tests failed'
                                 error("${service} tests failed!")
                             }
                         }
@@ -86,7 +93,8 @@ pipeline {
         always {
             script {
                 def status = currentBuild.result == 'SUCCESS' ? 'SUCCESS' : 'FAILURE'
-                githubNotify status: status, context: 'Jenkins CI'
+                def description = currentBuild.result == 'SUCCESS' ? 'Build succeeded' : 'Build failed'
+                githubNotify status: status, context: 'Jenkins CI', description: description
             }
             cleanWs()
         }
