@@ -14,7 +14,7 @@ pipeline {
                 script {
                     sh 'chmod +x mvnw'
                     echo 'Running code coverage analysis'
-                    sh "../mvnw org.jacoco:jacoco-maven-plugin:report"
+                    sh "./mvnw org.jacoco:jacoco-maven-plugin:report"
                     junit '**/target/surefire-reports/*.xml'
                     jacoco(
                         execPattern: '**/target/jacoco.exec',
