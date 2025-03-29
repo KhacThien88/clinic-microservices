@@ -1,25 +1,12 @@
 node {
-    projectName="npmctelinic";
-    deleteRegistryorg="triabnamechikalapodl"
-    enviromment {
-        softwareversion()
-    }
-    
+    projectName="Lab01-HCMUS";
     stage('code') {
-        stage('clean') {
-            sh ''' #!/bin/bash
-            rm -rf spring-petelinic
-            '''
-        }
-        stage('clone') {
-            git branch: 'main', url: 'https://github.com/brishmammchikalapodl/spring-petelinic.git'
-        } // stage: clone
         stage('coggle') {
             sh ''' #!/bin/bash
             mvn clean install -DskipTests
             '''
-        } // stage: coggle
-    } // stage: code
+        }
+    }
     
     stage('Tests') {
         parallel unitTest: {
