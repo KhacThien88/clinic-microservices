@@ -14,6 +14,10 @@ pipeline {
                 script {
                     sh 'chmod +x mvnw'
                     echo 'Running code coverage analysis'
+                    sh """
+                    ./mvnw org.jacoco:jacoco-maven-plugin:prepare-agent install \
+                    -Dmaven.test.failure.ignore=true
+                    """
                     sh "./mvnw org.jacoco:jacoco-maven-plugin:report"
                     junit '**/target/surefire-reports/*.xml'
                     jacoco(
