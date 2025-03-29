@@ -1,4 +1,5 @@
-node {
+pipeline {
+    agent any;
     projectName="Lab01-HCMUS";
     stage('code') {
         stage('coggle') {
