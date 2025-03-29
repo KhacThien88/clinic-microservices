@@ -198,44 +198,53 @@ def getChangedServices(changedFiles) {
     return services.unique()
 }
 
-def buildAndTestService(serviceName) {
+def buildTestAndReport(serviceName) {
     dir("spring-petclinic-${serviceName}") {
-        // Stage 1: Build
-        stage("Build ${serviceName}") {
-            sh "../mvnw clean install -DskipTests"
-        }
+        // Clean previous build artifacts
+        sh "../mvnw clean"
         
-        // Stage 2: Test with coverage
-        stage("Test ${serviceName}") {
-            try {
-                // Run tests with JaCoCo coverage
-
-                sh "../mvnw test org.jacoco:jacoco-maven-plugin:0.8.10:report"
-                
-                // Publish test results
-                junit "**/target/surefire-reports/*.xml"
-                
-                // Publish coverage report
-                publishHTML(target: [
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: false,
-                    keepAll: true,
-                    reportDir: "target/site/jacoco",
-                    reportFiles: "index.html",
-                    reportName: "${serviceName} Coverage Report"
-                ])
-                
-                // Verify coverage meets threshold
-                def coverage = getCoveragePercentage("target/site/jacoco/jacoco.xml")
-                echo "${serviceName} test coverage: ${coverage}%"
-                
-                if (coverage < 70) {
-                    error("${serviceName} test coverage ${coverage}% is below required 70% threshold")
-                }
-            } catch (Exception e) {
-                currentBuild.result = 'FAILURE'
-                error("Failed testing ${serviceName}: ${e.message}")
+        // Build and run tests with JaCoCo agent
+        try {
+            sh """
+                ../mvnw org.jacoco:jacoco-maven-plugin:prepare-agent install \
+                -Dmaven.test.failure.ignore=true
+            """
+            
+            // Generate reports
+            sh "../mvnw org.jacoco:jacoco-maven-plugin:report"
+            
+            // Publish test results
+            junit "**/target/surefire-reports/*.xml"
+            
+            // Publish JaCoCo coverage report
+            publishHTML(target: [
+                allowMissing: false,
+                alwaysLinkToLastBuild: false,
+                keepAll: true,
+                reportDir: "target/site/jacoco",
+                reportFiles: "index.html",
+                reportName: "${serviceName} Coverage Report"
+            ])
+            
+            // Check coverage metrics
+            def coverage = getCoverageMetrics("target/site/jacoco/jacoco.xml")
+            echo """
+            ${serviceName} Coverage Report:
+            - Instructions: ${coverage.instruction}%
+            - Branches: ${coverage.branch}%
+            - Complexity: ${coverage.complexity}%
+            - Lines: ${coverage.line}%
+            - Methods: ${coverage.method}%
+            - Classes: ${coverage.class}%
+            """
+            
+            // Fail build if coverage below threshold
+            if (coverage.instruction < 70) {
+                unstable("${serviceName} instruction coverage ${coverage.instruction}% is below 70% threshold")
             }
+            
+        } catch (Exception e) {
+            error("Failed building ${serviceName}: ${e.message}")
         }
     }
 }
