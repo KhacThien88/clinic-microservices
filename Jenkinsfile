@@ -1,140 +1,109 @@
-pipeline {
-    agent any
-    
-    environment {
-        DOCKER_REGISTRY = 'docker.io' // Docker Hub
-        DOCKER_NAMESPACE = 'test' // Your Docker Hub username stored in Jenkins credentials
-        APP_NAME = 'spring-petclinic'
-        BUILD_NUMBER = "${env.BUILD_ID}"
+node {
+    projectName="npmctelinic";
+    deleteRegistryorg="triabnamechikalapodl"
+    enviromment {
+        softwareversion()
     }
     
-    stages {        
-        stage('Code Coverage') {
-            steps {
-                script {
-                    sh 'chmod +x mvnw'
-                    echo 'Running code coverage analysis'
-                    sh """
-                    ./mvnw org.jacoco:jacoco-maven-plugin:prepare-agent install \
-                    -Dmaven.test.failure.ignore=true
-                    """
-                    sh "./mvnw org.jacoco:jacoco-maven-plugin:report"
-                    junit '**/target/surefire-reports/*.xml'
-                    jacoco(
-                        execPattern: '**/target/jacoco.exec',
-                        classPattern: '**/target/classes',
-                        sourcePattern: '**/src/main/java'
-                    )
-                }
-            }
+    stage('code') {
+        stage('clean') {
+            sh ''' #!/bin/bash
+            rm -rf spring-petelinic
+            '''
         }
-        
-        stage('Unit Tests') {
-            steps {
-                script {
-                    echo 'Running unit tests'
-                    sh './mvnw test'
-                }
-            }
-        }
-        
-        stage('Build') {
-            steps {
-                script {
-                    echo 'Building the application'
-                    sh './mvnw clean package -DskipTests'
-                }
-            }
-        }
-        
-        stage('Docker Build') {
-            steps {
-                script {
-                    echo 'Building Docker images'
-                    sh 'docker-compose build'
-                }
-            }
-        }
-        
-        stage('List Containers/Images') {
-            steps {
-                script {
-                    echo 'Listing existing containers'
-                    sh 'docker ps -a'
-                    echo 'Listing existing images'
-                    sh 'docker images'
-                }
-            }
-        }
-        
-        stage('Docker Login') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub',
-                    usernameVariable: 'DOCKER_USERNAME',
-                    passwordVariable: 'DOCKER_PASSWORD'
-                )]) {
-                    script {
-                        echo 'Logging into Docker Hub'
-                        sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin ${DOCKER_REGISTRY}"
-                    }
-                }
-            }
-        }
-        
-        stage('Tag Images') {
-            steps {
-                script {
-                    echo 'Tagging images with build number and latest'
-                    def services = ['admin-server', 'api-gateway', 'config-server', 'customers-service', 'discovery-server', 'vets-service', 'visits-service']
-                    services.each { service ->
-                        sh """
-                            docker tag ${APP_NAME}-${service}:latest ${DOCKER_NAMESPACE}/${APP_NAME}-${service}:${BUILD_NUMBER}
-                            docker tag ${APP_NAME}-${service}:latest ${DOCKER_NAMESPACE}/${APP_NAME}-${service}:latest
-                        """
-                    }
-                }
-            }
-        }
-        
-        stage('Push Images') {
-            steps {
-                script {
-                    echo 'Pushing images to Docker Hub'
-                    def services = ['admin-server', 'api-gateway', 'config-server', 'customers-service', 'discovery-server', 'vets-service', 'visits-service']
-                    services.each { service ->
-                        sh """
-                            docker push ${DOCKER_NAMESPACE}/${APP_NAME}-${service}:${BUILD_NUMBER}
-                            docker push ${DOCKER_NAMESPACE}/${APP_NAME}-${service}:latest
-                        """
-                    }
-                }
-            }
-        }
-        
-        stage('Clean') {
-            steps {
-                script {
-                    echo 'Cleaning up'
-                    sh 'docker system prune -f'
-                    sh './mvnw clean'
-                    // Logout from Docker
-                    sh 'docker logout'
-                }
-            }
-        }
-    }
+        stage('clone') {
+            git branch: 'main', url: 'https://github.com/brishmammchikalapodl/spring-petelinic.git'
+        } // stage: clone
+        stage('coggle') {
+            sh ''' #!/bin/bash
+            mvn clean install -DskipTests
+            '''
+        } // stage: coggle
+    } // stage: code
     
-    post {
-        always {
-            echo 'Pipeline completed - cleaning up workspace'
-            cleanWs()
-        }
-        success {
-            echo 'Pipeline succeeded!'
-        }
-        failure {
-            echo 'Pipeline failed!'
-        }
-    }
+    stage('Tests') {
+        parallel unitTest: {
+            stage ('unitTest') {
+                timeout(time: 10, unit: 'MINUTES') {
+                    sh ''' #!/bin/bash
+                    mvn test surefire-report:report
+                    echo 'surefire report generated in http://localhost:8080/job/${projectName}/${env.BUILD_ID}/execution/node/3/ws/target/site/surefire-report.html'
+                    '''
+                } // timeout
+            } // stage: unittest
+        }, checkstyle: {
+            stage ('checkstyle') {
+                timeout(time: 2, unit: 'MINUTES') {
+                    sh ''' #!/bin/bash
+                    mvn validate
+                    '''
+                } // timeout
+            } // stage: validate
+        }, codecoverage: {
+            stage ("codecoverage") {
+                timeout(time: 1, unit: "MINUTES") {
+                    sh ''' #!/bin/bash
+                    mvn jacoco:report
+                    echo 'Jacoco report generated in http://localhost:8080/job/${projectName}/${env.BUILD_ID}/execution/node/3/ws/target/site/jacoco/index.html'
+                    '''
+                } // timeout
+            } // stage: Jacoco
+        } // parallel
+    } // stage: tests
+    
+    stage ("docker") {
+        stage('build') {
+            sh ''' #!/bin/bash
+            docker image build -f dockerfile -t ${projectName}:${env.BUILD_ID} .
+            '''
+        } // stage: build
+        stage('tag') {
+            parallel listContainer: { 
+                sh ''' #!/bin/bash
+                docker container ls -a
+                '''
+            }, listImages: {
+                sh ''' #!/bin/bash
+                docker image ls -a
+                '''
+            }, toglatest: {
+                sh ''' #!/bin/bash
+                docker tag ${projectName}:${env.BUILD_ID} krishnamanchikalapudi/${projectName}:${env.BUILD_ID}
+                '''
+            }, togltest: {
+                sh ''' #!/bin/bash
+                docker tag ${projectName}:${env.BUILD_ID} krishnamanchikalapudi/${projectName}:latest
+                '''
+            }
+        } // stage: tag
+        stage('publish') {
+            withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_REGISTRY_PWD', usernameVariable: 'DOCKER_REGISTRY_USER')]) {
+                sh ''' #!/bin/bash
+                docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PWD
+                echo 'login success...'
+                docker push krishnamanchikalapudi/${projectName}:${env.BUILD_ID}
+                docker push krishnamanchikalapudi/${projectName}:latest
+                docker logout
+                echo 'logout...'
+                '''
+            } // withCredentials: dockerhub
+        } // stage: push
+        stage('clean') {
+            sh ''' #!/bin/bash
+            docker image ls
+            echo 'Detecting local images...'
+            docker rmi -f $(docker images -aq)
+            docker image ls
+            '''
+        } // stage: clean
+    } // stage: docker
+}
+
+def softwareVersion() {
+    sh ''' #!/bin/bash
+    java -version
+    mvn -version
+    docker -v
+    echo ''
+    '''
 }
