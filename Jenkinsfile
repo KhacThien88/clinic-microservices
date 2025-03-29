@@ -8,10 +8,11 @@ pipeline {
         BUILD_NUMBER = "${env.BUILD_ID}"
     }
     
-    stages {
+    stages {        
         stage('Code Coverage') {
             steps {
                 script {
+                    sh 'chmod +x mvnw'
                     echo 'Running code coverage analysis'
                     sh './mvnw test jacoco:report'
                     junit '**/target/surefire-reports/*.xml'
