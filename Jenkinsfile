@@ -13,6 +13,7 @@ pipeline {
             steps {
                 script {
                     echo 'Running Checkstyle validation'
+                    sh 'chmod +x mvnw'
                     sh './mvnw checkstyle:check'
                 }
             }
