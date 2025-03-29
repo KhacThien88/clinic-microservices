@@ -1,100 +1,129 @@
 pipeline {
     agent any
     
-    options {
-        skipDefaultCheckout false
-        buildDiscarder(logRotator(numToKeepStr: '10'))
-    }
-    
     environment {
-        SERVICES = 'vets-service,visits-service,customers-service,api-gateway'
+        DOCKER_REGISTRY = 'docker.io' // Docker Hub
+        DOCKER_NAMESPACE = 'test' // Your Docker Hub username stored in Jenkins credentials
+        APP_NAME = 'spring-petclinic'
+        BUILD_NUMBER = "${env.BUILD_ID}"
     }
     
     stages {
-        stage('Initialize') {
+        stage('Checkstyle') {
             steps {
                 script {
-                    // Clean workspace before checkout
-                    cleanWs()
-                    
-                    // Checkout source code
-                    checkout scm
-                    
-                    sh 'chmod +x mvnw'
-                    // Verify git is available
-                    sh 'git --version'
+                    echo 'Running Checkstyle validation'
+                    sh './mvnw checkstyle:check'
                 }
             }
         }
         
-        stage('Detect Changes') {
+        stage('Code Coverage') {
             steps {
                 script {
-                    // Get changed files with improved detection
-                    def changedFiles = getChangedFiles()
-                    
-                    // Determine which services were modified
-                    def changedServices = getChangedServices(changedFiles)
-                    
-                    // If manual trigger, build all services
-                    if (currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')) {
-                        echo "Manual trigger detected - building all services"
-                        env.CHANGED_SERVICES = env.SERVICES
-                    } else {
-                        // Automatic trigger - only build changed services
-                        env.CHANGED_SERVICES = changedServices.join(',')
-                    }
-                    
-                    echo "Changed services: ${env.CHANGED_SERVICES}"
-                    echo "All services: ${env.SERVICES}"
+                    echo 'Running code coverage analysis'
+                    sh './mvnw test jacoco:report'
+                    junit '**/target/surefire-reports/*.xml'
+                    jacoco(
+                        execPattern: '**/target/jacoco.exec',
+                        classPattern: '**/target/classes',
+                        sourcePattern: '**/src/main/java'
+                    )
                 }
             }
         }
         
-        stage('Build and Test') {
-            when {
-                expression { return env.CHANGED_SERVICES }
+        stage('Unit Tests') {
+            steps {
+                script {
+                    echo 'Running unit tests'
+                    sh './mvnw test'
+                }
             }
-            
-            parallel {
-                stage('Build and Test vets-service') {
-                    when {
-                        expression { return env.CHANGED_SERVICES.contains('vets-service') }
-                    }
-                    
-                    steps {
-                        buildAndTestService('vets-service')
+        }
+        
+        stage('Build') {
+            steps {
+                script {
+                    echo 'Building the application'
+                    sh './mvnw clean package -DskipTests'
+                }
+            }
+        }
+        
+        stage('Docker Build') {
+            steps {
+                script {
+                    echo 'Building Docker images'
+                    sh 'docker-compose build'
+                }
+            }
+        }
+        
+        stage('List Containers/Images') {
+            steps {
+                script {
+                    echo 'Listing existing containers'
+                    sh 'docker ps -a'
+                    echo 'Listing existing images'
+                    sh 'docker images'
+                }
+            }
+        }
+        
+        stage('Docker Login') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub',
+                    usernameVariable: 'DOCKER_USERNAME',
+                    passwordVariable: 'DOCKER_PASSWORD'
+                )]) {
+                    script {
+                        echo 'Logging into Docker Hub'
+                        sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin ${DOCKER_REGISTRY}"
                     }
                 }
-                
-                stage('Build and Test visits-service') {
-                    when {
-                        expression { return env.CHANGED_SERVICES.contains('visits-service') }
-                    }
-                    
-                    steps {
-                        buildAndTestService('visits-service')
-                    }
-                }
-                
-                stage('Build and Test customers-service') {
-                    when {
-                        expression { return env.CHANGED_SERVICES.contains('customers-service') }
-                    }
-                    
-                    steps {
-                        buildAndTestService('customers-service')
+            }
+        }
+        
+        stage('Tag Images') {
+            steps {
+                script {
+                    echo 'Tagging images with build number and latest'
+                    def services = ['admin-server', 'api-gateway', 'config-server', 'customers-service', 'discovery-server', 'vets-service', 'visits-service']
+                    services.each { service ->
+                        sh """
+                            docker tag ${APP_NAME}-${service}:latest ${DOCKER_NAMESPACE}/${APP_NAME}-${service}:${BUILD_NUMBER}
+                            docker tag ${APP_NAME}-${service}:latest ${DOCKER_NAMESPACE}/${APP_NAME}-${service}:latest
+                        """
                     }
                 }
-                
-                stage('Build and Test api-gateway') {
-                    when {
-                        expression { return env.CHANGED_SERVICES.contains('api-gateway') }
+            }
+        }
+        
+        stage('Push Images') {
+            steps {
+                script {
+                    echo 'Pushing images to Docker Hub'
+                    def services = ['admin-server', 'api-gateway', 'config-server', 'customers-service', 'discovery-server', 'vets-service', 'visits-service']
+                    services.each { service ->
+                        sh """
+                            docker push ${DOCKER_NAMESPACE}/${APP_NAME}-${service}:${BUILD_NUMBER}
+                            docker push ${DOCKER_NAMESPACE}/${APP_NAME}-${service}:latest
+                        """
                     }
-                    
-                    steps {
-                        buildAndTestService('api-gateway')
-                    }
+                }
+            }
+        }
+        
+        stage('Clean') {
+            steps {
+                script {
+                    echo 'Cleaning up'
+                    sh 'docker system prune -f'
+                    sh './mvnw clean'
+                    // Logout from Docker
+                    sh 'docker logout'
                 }
             }
         }
@@ -102,163 +131,14 @@ pipeline {
     
     post {
         always {
-            script {
-                // Archive important artifacts
-                archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
-                sh 'rm -rf /var/lib/jenkins/jobs/*/builds/*'
-                // Clean up workspace
-                cleanWs()
-            }
+            echo 'Pipeline completed - cleaning up workspace'
+            cleanWs()
         }
-        
-        // success {
-        //     echo 'Pipeline completed successfully'
-        // }
-        
-        // failure {
-        //     echo 'Pipeline failed'
-        //     emailext body: '${DEFAULT_CONTENT}', 
-        //             subject: 'Pipeline Failed: ${JOB_NAME} - Build #${BUILD_NUMBER}', 
-        //             to: 'KTeightop1512@gmail.com'
-        // }
-    }
-}
-
-// Helper functions
-def getChangedFiles() {
-    def changedFiles = []
-    
-    try {
-        // Method 1: Check SCM changes (works for automatic triggers)
-        if (currentBuild.changeSets) {
-            currentBuild.changeSets.each { changeSet ->
-                changeSet.items.each { item ->
-                    item.affectedFiles.each { file ->
-                        changedFiles << file.path
-                    }
-                }
-            }
-            echo "Detected changes via SCM: ${changedFiles}"
+        success {
+            echo 'Pipeline succeeded!'
         }
-        
-        // Method 2: Git diff (works for manual triggers and fallback)
-        if (changedFiles.isEmpty()) {
-            def gitDiff = sh(script: "git diff --name-only HEAD~1", returnStdout: true).trim()
-            if (gitDiff) {
-                changedFiles = gitDiff.split('\n').toList()
-                echo "Detected changes via git diff: ${changedFiles}"
-            }
+        failure {
+            echo 'Pipeline failed!'
         }
-        
-        // Method 3: Last commit (final fallback)
-        if (changedFiles.isEmpty()) {
-            def lastCommit = sh(script: "git show --name-only --pretty=format:''", returnStdout: true).trim()
-            if (lastCommit) {
-                changedFiles = lastCommit.split('\n').toList()
-                echo "Detected changes via last commit: ${changedFiles}"
-            }
-        }
-    } catch (Exception e) {
-        echo "Error detecting changed files: ${e.message}"
-        // If we can't determine changes, build all services
-        changedFiles = ['ALL'] // Special value that will trigger all services
-    }
-    
-    return changedFiles.unique()
-}
-
-def getChangedServices(changedFiles) {
-    def services = []
-    
-    // If we couldn't determine changes, build all services
-    if (changedFiles == ['ALL']) {
-        return env.SERVICES.tokenize(',')
-    }
-    
-    changedFiles.each { file ->
-        def normalizedFile = file.toLowerCase()
-        
-        if (normalizedFile.contains('vets-service')) {
-            services << 'vets-service'
-        }
-        else if (normalizedFile.contains('visits-service')) {
-            services << 'visits-service'
-        }
-        else if (normalizedFile.contains('customers-service')) {
-            services << 'customers-service'
-        }
-        else if (normalizedFile.contains('api-gateway')) {
-            services << 'api-gateway'
-        }
-        else {
-            echo "File not mapped to any service: ${file}"
-        }
-    }
-    
-    return services.unique()
-}
-
-def buildTestAndReport(serviceName) {
-    dir("spring-petclinic-${serviceName}") {
-        // Clean previous build artifacts
-        sh "../mvnw clean"
-        
-        // Build and run tests with JaCoCo agent
-        try {
-            sh """
-                ../mvnw org.jacoco:jacoco-maven-plugin:prepare-agent install \
-                -Dmaven.test.failure.ignore=true
-            """
-            
-            // Generate reports
-            sh "../mvnw org.jacoco:jacoco-maven-plugin:report"
-            
-            // Publish test results
-            junit "**/target/surefire-reports/*.xml"
-            
-            // Publish JaCoCo coverage report
-            publishHTML(target: [
-                allowMissing: false,
-                alwaysLinkToLastBuild: false,
-                keepAll: true,
-                reportDir: "target/site/jacoco",
-                reportFiles: "index.html",
-                reportName: "${serviceName} Coverage Report"
-            ])
-            
-            // Check coverage metrics
-            def coverage = getCoverageMetrics("target/site/jacoco/jacoco.xml")
-            echo """
-            ${serviceName} Coverage Report:
-            - Instructions: ${coverage.instruction}%
-            - Branches: ${coverage.branch}%
-            - Complexity: ${coverage.complexity}%
-            - Lines: ${coverage.line}%
-            - Methods: ${coverage.method}%
-            - Classes: ${coverage.class}%
-            """
-            
-            // Fail build if coverage below threshold
-            if (coverage.instruction < 70) {
-                unstable("${serviceName} instruction coverage ${coverage.instruction}% is below 70% threshold")
-            }
-            
-        } catch (Exception e) {
-            error("Failed building ${serviceName}: ${e.message}")
-        }
-    }
-}
-
-def getCoveragePercentage(coverageFile) {
-    try {
-        def parser = new XmlParser().parse(coverageFile)
-        def counter = parser.counter.find { it.@type == 'INSTRUCTION' }
-        def covered = counter.@covered.toDouble()
-        def missed = counter.@missed.toDouble()
-        def percentage = (covered / (covered + missed)) * 100
-        return Math.round(percentage * 100) / 100
-    } catch (Exception e) {
-        echo "Error parsing coverage file: ${e.message}"
-        return 0
     }
 }
