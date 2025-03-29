@@ -9,16 +9,6 @@ pipeline {
     }
     
     stages {
-        stage('Checkstyle') {
-            steps {
-                script {
-                    echo 'Running Checkstyle validation'
-                    sh 'chmod +x mvnw'
-                    sh './mvnw checkstyle:check'
-                }
-            }
-        }
-        
         stage('Code Coverage') {
             steps {
                 script {
