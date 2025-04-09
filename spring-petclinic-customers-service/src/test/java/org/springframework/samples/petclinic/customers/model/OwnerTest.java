@@ -73,4 +73,56 @@ class OwnerTests {
         assertTrue(toString.contains("Ha Noi"));
         assertTrue(toString.contains("0987654321"));
     }
+    @Test
+    void petManagementWorkflow() {
+        Owner owner = new Owner();
+        Pet pet = new Pet();
+        pet.setName("Fluffy");
+        
+        owner.addPet(pet);
+        
+        assertEquals(1, owner.getPets().size());
+        assertEquals(owner, pet.getOwner());
+    }
+
+    @Test
+    void petSortingByName() {
+        Owner owner = new Owner();
+        
+        Pet pet1 = new Pet();
+        pet1.setName("Zorro");
+        Pet pet2 = new Pet();
+        pet2.setName("Alpha");
+        
+        owner.addPet(pet1);
+        owner.addPet(pet2);
+        
+        List<Pet> pets = owner.getPets();
+        assertEquals("Alpha", pets.get(0).getName());
+        assertEquals("Zorro", pets.get(1).getName());
+    }
+
+    @Test
+    void unmodifiablePetList() {
+        Owner owner = new Owner();
+        assertThrows(UnsupportedOperationException.class, () -> {
+            owner.getPets().add(new Pet());
+        });
+    }
+
+    @Test
+    void fieldValidationThroughSetters() {
+        Owner owner = new Owner();
+        owner.setFirstName("John");
+        owner.setLastName("Doe");
+        owner.setAddress("123 Street");
+        owner.setCity("Metropolis");
+        owner.setTelephone("1234567890");
+        
+        assertEquals("John", owner.getFirstName());
+        assertEquals("Doe", owner.getLastName());
+        assertEquals("123 Street", owner.getAddress());
+        assertEquals("Metropolis", owner.getCity());
+        assertEquals("1234567890", owner.getTelephone());
+    }
 }
