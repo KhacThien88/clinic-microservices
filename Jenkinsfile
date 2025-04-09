@@ -128,17 +128,22 @@ pipeline {
 
     post {
         always {
-            echo "Looking for surefire reports..."
-            def changedModule = sh(script: "git diff --name-only HEAD^ HEAD | grep -o 'spring-petclinic-[a-z-]*' | head -1",returnStdout: true).trim()
-        
-            if (changedModule) {
-                dir("${changedModule}") {
-                    sh "find . -name '*.xml'"
-                    junit '**/target/surefire-reports/*.xml'
-                    archiveArtifacts artifacts: '**/target/site/jacoco/**', allowEmptyArchive: true
+            script {
+                echo "Looking for surefire reports..."
+                def changedModule = sh(
+                    script: "git diff --name-only HEAD^ HEAD | grep -o 'spring-petclinic-[a-z-]*' | head -1",
+                    returnStdout: true
+                ).trim()
+            
+                if (changedModule) {
+                    dir("${changedModule}") {
+                        sh "find . -name '*.xml'"
+                        junit '**/target/surefire-reports/*.xml'
+                        archiveArtifacts artifacts: '**/target/site/jacoco/**', allowEmptyArchive: true
+                    }
+                } else {
+                    echo "No changed module found for test reports."
                 }
-            } else {
-            echo "No changed module found for test reports."
             }
         }
     }
