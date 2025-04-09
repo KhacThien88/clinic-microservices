@@ -40,7 +40,7 @@
         <container.executable>docker</container.executable>
         <!-- By default, the OCI image is build for the linux/amd64 platform -->
         <!-- For Apple Silicon M2 Chip you have to change it to the linux/arm64 -->
-        <container.platform>linux/amd64</container.platform>
+        <container.platform>linux/arm64</container.platform>
         <!-- The -load option is a shortcut for or -output=type=docker -->
         <!-- Could be changed by the -push option !-->
         <container.build.extraarg>--load</container.build.extraarg>
