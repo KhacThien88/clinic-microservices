@@ -8,7 +8,13 @@ pipeline {
         stage('Initialize') {
             steps {
                 script {
-                    softwareVersion()
+                    // Moved softwareVersion inside script block
+                    sh '''#!/bin/bash
+                    java -version
+                    mvn -version
+                    docker -v
+                    echo ''
+                    '''
                 }
             }
         }
@@ -28,7 +34,7 @@ pipeline {
                         timeout(time: 10, unit: 'MINUTES') {
                             sh '''#!/bin/bash
                             mvn test surefire-report:report
-                            echo "surefire report generated in http://localhost:8080/job/${env.projectName}/${env.BUILD_ID}/execution/node/3/ws/target/site/surefire-report.html"
+                            echo "surefire report generated in http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/target/site/surefire-report.html"
                             '''
                         }
                     }
@@ -47,7 +53,7 @@ pipeline {
                         timeout(time: 1, unit: 'MINUTES') {
                             sh '''#!/bin/bash
                             mvn jacoco:report
-                            echo "Jacoco report generated in http://localhost:8080/job/${env.projectName}/${env.BUILD_ID}/execution/node/3/ws/target/site/jacoco/index.html"
+                            echo "Jacoco report generated in http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/target/site/jacoco/index.html"
                             '''
                         }
                     }
@@ -60,7 +66,7 @@ pipeline {
                 stage('Build') {
                     steps {
                         sh '''#!/bin/bash
-                        docker image build -f dockerfile -t ${env.projectName}:${env.BUILD_ID} .
+                        docker image build -f dockerfile -t $projectName:$BUILD_ID .
                         '''
                     }
                 }
@@ -75,10 +81,10 @@ pipeline {
                                     sh 'docker image ls -a'
                                 },
                                 toglatest: {
-                                    sh "docker tag ${env.projectName}:${env.BUILD_ID} ktei8htop15122004/${env.projectName}:${env.BUILD_ID}"
+                                    sh "docker tag $projectName:$BUILD_ID ktei8htop15122004/$projectName:$BUILD_ID"
                                 },
                                 togltest: {
-                                    sh "docker tag ${env.projectName}:${env.BUILD_ID} ktei8htop15122004/${env.projectName}:latest"
+                                    sh "docker tag $projectName:$BUILD_ID ktei8htop15122004/$projectName:latest"
                                 }
                             )
                         }
@@ -90,8 +96,8 @@ pipeline {
                             sh '''#!/bin/bash
                             docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PWD
                             echo 'login success...'
-                            docker push ktei8htop15122004/${env.projectName}:${env.BUILD_ID}
-                            docker push ktei8htop15122004/${env.projectName}:latest
+                            docker push ktei8htop15122004/$projectName:$BUILD_ID
+                            docker push ktei8htop15122004/$projectName:latest
                             docker logout
                             echo 'logout...'
                             '''
@@ -111,13 +117,4 @@ pipeline {
             }
         }
     }
-}
-
-def softwareVersion() {
-    sh '''#!/bin/bash
-    java -version
-    mvn -version
-    docker -v
-    echo ''
-    '''
 }
