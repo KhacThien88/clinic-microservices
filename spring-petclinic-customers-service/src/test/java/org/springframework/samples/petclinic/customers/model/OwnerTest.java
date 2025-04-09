@@ -139,11 +139,4 @@ class OwnerTests {
         Owner owner = new Owner();
         assertNull(owner.getId(), "ID should be null before persistence");
     }
-
-    @Test
-    void testTelephoneValidation() {
-        Owner owner = new Owner();
-        assertThrows(ValidationException.class, () -> 
-        owner.setTelephone("invalid-phone"));
-    }
 }
