@@ -75,8 +75,9 @@ pipeline {
                                     sh """
                                         cd ${changedModule}
                                         mvn verify -Pcoverage
-                                        ls -l target
                                         mkdir -p target/site/jacoco
+                                        ls -l target
+                                        find target -name "jacoco.xml"
                                         pwd
                                         echo "Surefire report: http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/${changedModule}/target/site/surefire-report.html"
                                         echo "JaCoCo report:   http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/${changedModule}/target/site/jacoco/index.html"
