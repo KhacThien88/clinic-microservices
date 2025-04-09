@@ -147,7 +147,6 @@
                             </execution>
                             <execution>
                                 <id>report</id>
-                                <phase>verify</phase>
                                 <goals>
                                     <goal>report</goal>
                                 </goals>
