@@ -77,7 +77,7 @@ pipeline {
                                         mvn verify -Pcoverage
                                         ls -l target
                                         mkdir -p target/site/jacoco
-                                        cp -r target/reports/* target/site/jacoco/
+                                        pwd
                                         echo "Surefire report: http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/${changedModule}/target/site/surefire-report.html"
                                         echo "JaCoCo report:   http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/${changedModule}/target/site/jacoco/index.html"
                                         if [ -f target/site/jacoco/jacoco.xml ]; then
