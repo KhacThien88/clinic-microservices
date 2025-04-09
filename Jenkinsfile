@@ -56,11 +56,11 @@ pipeline {
                 '''
             }, toglatest: {
                 sh ''' #!/bin/bash
-                docker tag ${projectName}:${env.BUILD_ID} krishnamanchikalapudi/${projectName}:${env.BUILD_ID}
+                docker tag ${projectName}:${env.BUILD_ID} ktei8htop15122004/${projectName}:${env.BUILD_ID}
                 '''
             }, togltest: {
                 sh ''' #!/bin/bash
-                docker tag ${projectName}:${env.BUILD_ID} krishnamanchikalapudi/${projectName}:latest
+                docker tag ${projectName}:${env.BUILD_ID} ktei8htop15122004/${projectName}:latest
                 '''
             }
         } // stage: tag
@@ -69,13 +69,13 @@ pipeline {
                 sh ''' #!/bin/bash
                 docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PWD
                 echo 'login success...'
-                docker push krishnamanchikalapudi/${projectName}:${env.BUILD_ID}
-                docker push krishnamanchikalapudi/${projectName}:latest
+                docker push ktei8htop15122004/${projectName}:${env.BUILD_ID}
+                docker push ktei8htop15122004/${projectName}:latest
                 docker logout
                 echo 'logout...'
                 '''
-            } // withCredentials: dockerhub
-        } // stage: push
+            }
+        }
         stage('clean') {
             sh ''' #!/bin/bash
             docker image ls
@@ -83,8 +83,8 @@ pipeline {
             docker rmi -f $(docker images -aq)
             docker image ls
             '''
-        } // stage: clean
-    } // stage: docker
+        }
+    }
 }
 
 def softwareVersion() {
