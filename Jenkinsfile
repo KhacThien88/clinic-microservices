@@ -50,6 +50,19 @@ pipeline {
                                 mvn verify -Pcoverage
                                 echo "Surefire report: http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/target/site/surefire-report.html"
                                 echo "JaCoCo report:   http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/target/site/jacoco/index.html"
+                                if [ -f target/site/jacoco/jacoco.xml ]; then
+                                    covered=$(grep -oP 'covered="\\K[0-9]+' target/site/jacoco/jacoco.xml | paste -sd+ - | bc)
+                                    missed=$(grep -oP 'missed="\\K[0-9]+' target/site/jacoco/jacoco.xml | paste -sd+ - | bc)
+                                    total=$((covered + missed))
+                                    if [ "$total" -gt 0 ]; then
+                                        percent=$((100 * covered / total))
+                                        echo "Line Coverage: $percent% ($covered / $total)"
+                                    else
+                                        echo "No coverage data found."
+                                    fi
+                                else
+                                    echo "Jacoco report not found."
+                                fi
                             '''
                         }
                     }
