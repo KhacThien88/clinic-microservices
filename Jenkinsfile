@@ -43,12 +43,13 @@ pipeline {
                     }
                 }
 
-                stage('Code Coverage') {
+                stage('Run Tests & Coverage') {
                     steps {
-                        timeout(time: 1, unit: 'MINUTES') {
+                        timeout(time: 10, unit: 'MINUTES') {
                             sh '''
-                                mvn jacoco:report
-                                echo "Jacoco report generated in http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/target/site/jacoco/index.html"
+                                mvn verify -Pcoverage
+                                echo "Surefire report: http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/target/site/surefire-report.html"
+                                echo "JaCoCo report:   http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/target/site/jacoco/index.html"
                             '''
                         }
                     }
