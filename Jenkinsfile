@@ -74,7 +74,9 @@ pipeline {
                                 if (changedModule) {
                                     sh """
                                         cd ${changedModule}
-                                        mvn test
+                                        mvn verify -Pcoverage
+                                        ls -l target
+                                        ls -l target/site
                                         mkdir -p target/site/jacoco
                                         find . -name "jacoco.xml" -exec cp {} target/site/jacoco/ \\;
                                         echo "Surefire report: http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/${changedModule}/target/site/surefire-report.html"
