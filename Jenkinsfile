@@ -129,9 +129,13 @@ pipeline {
     post {
         always {
             echo "Looking for surefire reports..."
-            sh "find . -name '*.xml'"
-            junit '**/target/surefire-reports/*.xml'
-            archiveArtifacts artifacts: '**/target/site/jacoco/**', allowEmptyArchive: true
+            def changedModule = sh(script: "git diff --name-only HEAD^ HEAD | grep -o 'spring-petclinic-[a-z-]*' | head -1", returnStdout: true).trim()
+            if (changedModule) {
+                sh "cd ${changedModule}"
+                sh "find . -name '*.xml'"
+                junit '**/target/surefire-reports/*.xml'
+                archiveArtifacts artifacts: '**/target/site/jacoco/**', allowEmptyArchive: true
+            }
         }
     }
 
