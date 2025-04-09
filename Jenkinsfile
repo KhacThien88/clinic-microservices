@@ -17,14 +17,7 @@ pipeline {
         stage('Test') {
             when {
                 anyOf {
-                    changeset "spring-petclinic-admin-server/**"
-                    changeset "spring-petclinic-customers-service/**"
                     changeset "spring-petclinic-vets-service/**"
-                    changeset "spring-petclinic-visits-service/**"
-                    changeset "spring-petclinic-genai-service/**"
-                    changeset "spring-petclinic-config-server/**"
-                    changeset "spring-petclinic-discovery-server/**"
-                    changeset "spring-petclinic-api-gateway/**"
                 }
             }
             parallel {
@@ -36,6 +29,7 @@ pipeline {
                                 if (changedModule) {
                                     sh """
                                         cd ${changedModule}
+                                        mvn test
                                         mvn test surefire-report:report
                                         echo "Surefire report generated in http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/${changedModule}/target/site/surefire-report.html"
                                     """
@@ -111,14 +105,7 @@ pipeline {
         stage('Build') {
             when {
                 anyOf {
-                    changeset "spring-petclinic-admin-server/**"
-                    changeset "spring-petclinic-customers-service/**"
                     changeset "spring-petclinic-vets-service/**"
-                    changeset "spring-petclinic-visits-service/**"
-                    changeset "spring-petclinic-genai-service/**"
-                    changeset "spring-petclinic-config-server/**"
-                    changeset "spring-petclinic-discovery-server/**"
-                    changeset "spring-petclinic-api-gateway/**"
                 }
             }
             steps {
@@ -141,8 +128,11 @@ pipeline {
 
     post {
         always {
+            echo "Looking for surefire reports..."
+            sh "find . -name '*.xml'"
             junit '**/target/surefire-reports/*.xml'
             archiveArtifacts artifacts: '**/target/site/jacoco/**', allowEmptyArchive: true
         }
     }
+
 }
