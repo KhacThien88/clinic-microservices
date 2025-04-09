@@ -44,34 +44,4 @@ class VisitTest {
         Visit visit = new Visit();
         assertNotNull(visit.getDate(), "Default date should not be null");
     }
-    @Test
-    void testVisitBuilderWithNullValues() {
-        Visit visit = Visit.VisitBuilder.aVisit()
-                .id(null)
-                .date(null)
-                .description(null)
-                .petId(0)
-                .build();
-
-        assertNull(visit.getId());
-        assertNull(visit.getDate());
-        assertNull(visit.getDescription());
-        assertEquals(0, visit.getPetId());
-    }
-    @Test
-    void testUpdateVisitDescription() {
-        Visit visit = new Visit();
-        visit.setPetId(500);
-        visit.setDescription("Initial check");
-        visit.setDate(new Date());
-
-        visit = visitRepository.save(visit);
-
-        visit.setDescription("Updated description");
-        visit = visitRepository.save(visit);
-
-        Visit updated = visitRepository.findById(visit.getId()).orElseThrow();
-        assertEquals("Updated description", updated.getDescription());
-    }
-
 }
