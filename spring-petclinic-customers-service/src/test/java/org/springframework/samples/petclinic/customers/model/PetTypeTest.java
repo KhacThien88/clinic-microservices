@@ -31,6 +31,6 @@ class PetTypeTests {
         type.setName("Hamsterss");
 
         assertEquals(3, type.getId());
-        assertEquals("Hamsters", type.getName());
+        assertEquals("Hamsterss", type.getName());
     }
 }
