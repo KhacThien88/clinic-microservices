@@ -4,7 +4,6 @@ pipeline {
     environment {
         projectName = 'lab01hcmus'
     }
-
     stages {
         stage('Initialize') {
             steps {
@@ -15,22 +14,36 @@ pipeline {
                 '''
             }
         }
-
-        stage('Code') {
-            steps {
-                sh 'mvn clean install -DskipTests'
+        stage('Test') {
+            when {
+                anyOf {
+                    changeset "spring-petclinic-admin-server/**"
+                    changeset "spring-petclinic-customers-service/**"
+                    changeset "spring-petclinic-vets-service/**"
+                    changeset "spring-petclinic-visits-service/**"
+                    changeset "spring-petclinic-genai-service/**"
+                    changeset "spring-petclinic-config-server/**"
+                    changeset "spring-petclinic-discovery-server/**"
+                    changeset "spring-petclinic-api-gateway/**"
+                }
             }
-        }
-
-        stage('Tests') {
             parallel {
                 stage('Unit Test') {
                     steps {
                         timeout(time: 10, unit: 'MINUTES') {
-                            sh '''
-                                mvn test surefire-report:report
-                                echo "surefire report generated in http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/target/site/surefire-report.html"
-                            '''
+                            script {
+                                def changedModule = sh(script: "git diff --name-only HEAD^ HEAD | grep -o 'spring-petclinic-[a-z-]*' | head -1", returnStdout: true).trim()
+                                if (changedModule) {
+                                    sh """
+                                        cd ${changedModule}
+                                        mvn test surefire-report:report
+                                        echo "Surefire report generated in http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/${changedModule}/target/site/surefire-report.html"
+                                    """
+                                    junit "${changedModule}/target/surefire-reports/*.xml"
+                                } else {
+                                    echo "No service module changed for Unit Test."
+                                }
+                            }
                         }
                     }
                 }
@@ -38,89 +51,94 @@ pipeline {
                 stage('Checkstyle') {
                     steps {
                         timeout(time: 2, unit: 'MINUTES') {
-                            sh 'mvn validate'
+                            script {
+                                def changedModule = sh(script: "git diff --name-only HEAD^ HEAD | grep -o 'spring-petclinic-[a-z-]*' | head -1", returnStdout: true).trim()
+                                if (changedModule) {
+                                    sh """
+                                        cd ${changedModule}
+                                        mvn validate
+                                    """
+                                } else {
+                                    echo "No service module changed for Checkstyle."
+                                }
+                            }
                         }
                     }
                 }
 
-                stage('Run Tests & Coverage') {
+                stage('Coverage') {
                     steps {
                         timeout(time: 10, unit: 'MINUTES') {
-                            sh '''
-                                mvn verify -Pcoverage
-                                echo "Surefire report: http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/target/site/surefire-report.html"
-                                echo "JaCoCo report:   http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/target/site/jacoco/index.html"
-                                if [ -f target/site/jacoco/jacoco.xml ]; then
-                                    covered=$(grep -oP 'covered="\\K[0-9]+' target/site/jacoco/jacoco.xml | paste -sd+ - | bc)
-                                    missed=$(grep -oP 'missed="\\K[0-9]+' target/site/jacoco/jacoco.xml | paste -sd+ - | bc)
-                                    total=$((covered + missed))
-                                    if [ "$total" -gt 0 ]; then
-                                        percent=$((100 * covered / total))
-                                        echo "Line Coverage: $percent% ($covered / $total)"
-                                    else
-                                        echo "No coverage data found."
-                                    fi
-                                else
-                                    echo "Jacoco report not found."
-                                fi
-                            '''
+                            script {
+                                def changedModule = sh(script: "git diff --name-only HEAD^ HEAD | grep -o 'spring-petclinic-[a-z-]*' | head -1", returnStdout: true).trim()
+                                if (changedModule) {
+                                    sh """
+                                        cd ${changedModule}
+                                        mvn verify -Pcoverage
+                                        mkdir -p target/site/jacoco
+                                        find . -name "jacoco.xml" -exec cp {} target/site/jacoco/ \\;
+                                        echo "Surefire report: http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/${changedModule}/target/site/surefire-report.html"
+                                        echo "JaCoCo report:   http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/${changedModule}/target/site/jacoco/index.html"
+                                        if [ -f target/site/jacoco/jacoco.xml ]; then
+                                            covered=\$(grep -oP 'covered="\\\\K[0-9]+' target/site/jacoco/jacoco.xml | paste -sd+ - | bc)
+                                            missed=\$(grep -oP 'missed="\\\\K[0-9]+' target/site/jacoco/jacoco.xml | paste -sd+ - | bc)
+                                            total=\$((covered + missed))
+                                            if [ "\$total" -gt 0 ]; then
+                                                percent=\$((100 * covered / total))
+                                                echo "Line Coverage: \$percent% (\$covered / \$total)"
+                                            else
+                                                echo "No coverage data found."
+                                            fi
+                                        else
+                                            echo "Jacoco report not found."
+                                        fi
+                                    """
+                                    archiveArtifacts artifacts: "${changedModule}/target/site/jacoco/**", allowEmptyArchive: true
+                                } else {
+                                    echo "No service module changed for Coverage."
+                                }
+                            }
                         }
                     }
                 }
             }
         }
 
-        stage('Docker - Build') {
-            steps {
-                sh 'docker image build -f dockerfile -t $projectName:$BUILD_ID .'
+        stage('Build') {
+            when {
+                anyOf {
+                    changeset "spring-petclinic-admin-server/**"
+                    changeset "spring-petclinic-customers-service/**"
+                    changeset "spring-petclinic-vets-service/**"
+                    changeset "spring-petclinic-visits-service/**"
+                    changeset "spring-petclinic-genai-service/**"
+                    changeset "spring-petclinic-config-server/**"
+                    changeset "spring-petclinic-discovery-server/**"
+                    changeset "spring-petclinic-api-gateway/**"
+                }
             }
-        }
-
-        stage('Docker - Tag') {
             steps {
                 script {
-                    parallel(
-                        listContainer: {
-                            sh 'docker container ls -a'
-                        },
-                        listImages: {
-                            sh 'docker image ls -a'
-                        },
-                        toglatest: {
-                            sh "docker tag $projectName:$BUILD_ID ktei8htop15122004/$projectName:$BUILD_ID"
-                        },
-                        togltest: {
-                            sh "docker tag $projectName:$BUILD_ID ktei8htop15122004/$projectName:latest"
-                        }
-                    )
+                    def changedModule = sh(script: "git diff --name-only HEAD^ HEAD | grep -o 'spring-petclinic-[a-z-]*' | head -1", returnStdout: true).trim()
+                    if (changedModule) {
+                        sh """
+                            cd ${changedModule}
+                            mvn clean install -DskipTests
+                            echo "Artifact built: ${changedModule}/target/${changedModule}-3.4.1.jar"
+                        """
+                        archiveArtifacts artifacts: "${changedModule}/target/*.jar", allowEmptyArchive: true
+                    } else {
+                        echo "No service module changed for Build."
+                    }
                 }
             }
         }
+    }
 
-        stage('Docker - Publish') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_REGISTRY_PWD', usernameVariable: 'DOCKER_REGISTRY_USER')]) {
-                    sh '''
-                        docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PWD
-                        echo 'login success...'
-                        docker push ktei8htop15122004/$projectName:$BUILD_ID
-                        docker push ktei8htop15122004/$projectName:latest
-                        docker logout
-                        echo 'logout...'
-                    '''
-                }
-            }
-        }
-
-        stage('Docker - Clean') {
-            steps {
-                sh '''
-                    echo 'Detecting local images...'
-                    docker image ls
-                    docker rmi -f $(docker images -aq)
-                    docker image ls
-                '''
-            }
+    post {
+        always {
+            junit '**/target/surefire-reports/*.xml'
+            archiveArtifacts artifacts: '**/target/site/jacoco/**', allowEmptyArchive: true
         }
     }
 }
