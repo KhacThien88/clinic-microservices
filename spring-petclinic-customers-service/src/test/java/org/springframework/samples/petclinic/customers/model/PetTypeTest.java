@@ -42,4 +42,10 @@ class PetTypeTests {
         int initialHashCode = type.hashCode();
         assertEquals(initialHashCode, type.hashCode(), "Hash code should remain consistent");
     }
+    @Test
+    void testTypeNameBoundary() {
+        PetType type = new PetType();
+        type.setName("A".repeat(255)); // Max column length
+        assertEquals(255, type.getName().length());
+    }
 }
