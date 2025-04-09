@@ -79,8 +79,6 @@ pipeline {
                                         ls -l target
                                         find target -name "jacoco.xml"
                                         pwd
-                                        echo "Surefire report: http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/${changedModule}/target/site/surefire-report.html"
-                                        echo "JaCoCo report:   http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/${changedModule}/target/site/jacoco/index.html"
                                         if [ -f target/site/jacoco/jacoco.xml ]; then
                                             covered=$(grep -oP 'covered="\K[0-9]+' target/site/jacoco/jacoco.xml | paste -sd+ - | bc)
                                             missed=$(grep -oP 'missed="\K[0-9]+' target/site/jacoco/jacoco.xml | paste -sd+ - | bc)
