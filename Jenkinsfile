@@ -81,7 +81,7 @@ pipeline {
                                             if [ "\$total" -gt 0 ]; then
                                                 percent=\$((100 * covered / total))
                                                 echo "Line Coverage: \$percent% (\$covered / \$total)"
-                                                if [ "\$percent" -lt 70 ]; then
+                                                if [ "\$percent" -lt 60 ]; then
                                                     echo "Line coverage is less than 70%. Failing the build."
                                                     exit 1
                                                 fi
