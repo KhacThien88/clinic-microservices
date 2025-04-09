@@ -125,4 +125,25 @@ class OwnerTests {
         assertEquals("Metropolis", owner.getCity());
         assertEquals("1234567890", owner.getTelephone());
     }
+    @Test
+    void testPetsInitialization() {
+        Owner owner = new Owner();
+        assertTrue(owner.getPets().isEmpty(), "Should initialize with empty pets list");
+    
+        owner.addPet(new Pet());
+        assertEquals(1, owner.getPets().size(), "Should add pet to collection");
+    }
+
+    @Test
+    void testIdAutoGeneration() {
+        Owner owner = new Owner();
+        assertNull(owner.getId(), "ID should be null before persistence");
+    }
+
+    @Test
+    void testTelephoneValidation() {
+        Owner owner = new Owner();
+        assertThrows(ValidationException.class, () -> 
+        owner.setTelephone("invalid-phone"));
+    }
 }
