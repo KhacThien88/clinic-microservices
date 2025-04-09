@@ -17,14 +17,7 @@ pipeline {
         stage('Test') {
             when {
                 anyOf {
-                    changeset "spring-petclinic-admin-server/**"
                     changeset "spring-petclinic-customers-service/**"
-                    changeset "spring-petclinic-vets-service/**"
-                    changeset "spring-petclinic-visits-service/**"
-                    changeset "spring-petclinic-genai-service/**"
-                    changeset "spring-petclinic-config-server/**"
-                    changeset "spring-petclinic-discovery-server/**"
-                    changeset "spring-petclinic-api-gateway/**"
                 }
             }
             parallel {
@@ -36,6 +29,7 @@ pipeline {
                                 if (changedModule) {
                                     sh """
                                         cd ${changedModule}
+                                        mvn test
                                         mvn test surefire-report:report
                                         echo "Surefire report generated in http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/${changedModule}/target/site/surefire-report.html"
                                     """
@@ -76,9 +70,6 @@ pipeline {
                                         cd ${changedModule}
                                         mvn verify -PbuildJacoco
                                         mkdir -p target/site/jacoco
-                                        ls -l target
-                                        find target -name "jacoco.xml"
-                                        pwd
                                         echo "Surefire report: http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/${changedModule}/target/site/surefire-report.html"
                                         echo "JaCoCo report:   http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/${changedModule}/target/site/jacoco/index.html"
                                         if [ -f target/site/jacoco/jacoco.xml ]; then
@@ -90,11 +81,17 @@ pipeline {
                                             if [ "\$total" -gt 0 ]; then
                                                 percent=\$((100 * covered / total))
                                                 echo "Line Coverage: \$percent% (\$covered / \$total)"
+                                                if [ "\$percent" -lt 70 ]; then
+                                                    echo "Line coverage is less than 70%. Failing the build."
+                                                    exit 1
+                                                fi
                                             else
-                                                echo "No coverage data found."
+                                                echo "No coverage data found. Failing the build."
+                                                exit 1
                                             fi
                                         else
-                                            echo "Jacoco report not found."
+                                            echo "Jacoco report not found. Failing the build."
+                                            exit 1
                                         fi
                                     """
                                     archiveArtifacts artifacts: "${changedModule}/target/site/jacoco/**", allowEmptyArchive: true
@@ -111,14 +108,7 @@ pipeline {
         stage('Build') {
             when {
                 anyOf {
-                    changeset "spring-petclinic-admin-server/**"
                     changeset "spring-petclinic-customers-service/**"
-                    changeset "spring-petclinic-vets-service/**"
-                    changeset "spring-petclinic-visits-service/**"
-                    changeset "spring-petclinic-genai-service/**"
-                    changeset "spring-petclinic-config-server/**"
-                    changeset "spring-petclinic-discovery-server/**"
-                    changeset "spring-petclinic-api-gateway/**"
                 }
             }
             steps {
@@ -136,13 +126,6 @@ pipeline {
                     }
                 }
             }
-        }
-    }
-
-    post {
-        always {
-            junit '**/target/surefire-reports/*.xml'
-            archiveArtifacts artifacts: '**/target/site/jacoco/**', allowEmptyArchive: true
         }
     }
 }
