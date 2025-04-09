@@ -70,9 +70,6 @@ pipeline {
                                         cd ${changedModule}
                                         mvn verify -PbuildJacoco
                                         mkdir -p target/site/jacoco
-                                        ls -l target
-                                        find target -name "jacoco.xml"
-                                        pwd
                                         echo "Surefire report: http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/${changedModule}/target/site/surefire-report.html"
                                         echo "JaCoCo report:   http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/${changedModule}/target/site/jacoco/index.html"
                                         if [ -f target/site/jacoco/jacoco.xml ]; then
@@ -84,11 +81,17 @@ pipeline {
                                             if [ "\$total" -gt 0 ]; then
                                                 percent=\$((100 * covered / total))
                                                 echo "Line Coverage: \$percent% (\$covered / \$total)"
+                                                if [ "\$percent" -lt 70 ]; then
+                                                    echo "Line coverage is less than 70%. Failing the build."
+                                                    exit 1
+                                                fi
                                             else
-                                                echo "No coverage data found."
+                                                echo "No coverage data found. Failing the build."
+                                                exit 1
                                             fi
                                         else
-                                            echo "Jacoco report not found."
+                                            echo "Jacoco report not found. Failing the build."
+                                            exit 1
                                         fi
                                     """
                                     archiveArtifacts artifacts: "${changedModule}/target/site/jacoco/**", allowEmptyArchive: true
@@ -121,28 +124,6 @@ pipeline {
                     } else {
                         echo "No service module changed for Build."
                     }
-                }
-            }
-        }
-    }
-
-    post {
-        always {
-            script {
-                echo "Looking for surefire reports..."
-                def changedModule = sh(
-                    script: "git diff --name-only HEAD^ HEAD | grep -o 'spring-petclinic-[a-z-]*' | head -1",
-                    returnStdout: true
-                ).trim()
-            
-                if (changedModule) {
-                    dir("${changedModule}") {
-                        sh "find . -name '*.xml'"
-                        junit '**/target/surefire-reports/*.xml'
-                        archiveArtifacts artifacts: '**/target/site/jacoco/**', allowEmptyArchive: true
-                    }
-                } else {
-                    echo "No changed module found for test reports."
                 }
             }
         }
