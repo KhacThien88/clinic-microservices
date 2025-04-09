@@ -74,7 +74,7 @@ pipeline {
                                 if (changedModule) {
                                     sh """
                                         cd ${changedModule}
-                                        mvn verify -Pcoverage
+                                        mvn verify -PbuildJacoco
                                         mkdir -p target/site/jacoco
                                         ls -l target
                                         find target -name "jacoco.xml"
