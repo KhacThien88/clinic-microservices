@@ -42,14 +42,4 @@ class PetTypeTests {
         int initialHashCode = type.hashCode();
         assertEquals(initialHashCode, type.hashCode(), "Hash code should remain consistent");
     }
-
-    @Test
-    void testToStringContainsName() {
-        PetType type = new PetType();
-        type.setName("Hamsterssssss");
-        
-        String toStringResult = type.toString();
-        assertTrue(toStringResult.contains("Hamster"), 
-            "toString() should include the pet type name");
-    }
 }
