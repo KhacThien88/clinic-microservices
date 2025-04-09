@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        projectName = 'Lab01-HCMUS'
+        projectName = 'lab01hcmus'
     }
 
     stages {
