@@ -14,12 +14,15 @@ pipeline {
                     docker -v
                 '''
             
-                step([
-                    $class: 'GitHubCommitStatusSetter',
-                    reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/KhacThien88/clinic-microservices"],
-                    contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
-                    statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "PENDING", message: "Build started"]]]
-                ])
+                withCredentials([usernamePassword(credentialsId: 'github-account', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
+                    step([
+                        $class: 'GitHubCommitStatusSetter',
+                        reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/KhacThien88/clinic-microservices"],
+                        contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
+                        statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "PENDING", message: "Build started"]]],
+                        credentialsId: 'github-account'
+                    ])
+                }
             }
         }
         stage('Test') {
@@ -149,20 +152,26 @@ pipeline {
 
     post {
         success {
-            step([
-                $class: 'GitHubCommitStatusSetter',
-                reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/KhacThien88/clinic-microservices"],
-                contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
-                statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "SUCCESS", message: "Build passed"]]]
-            ])
+            withCredentials([usernamePassword(credentialsId: 'github-account', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
+                step([
+                    $class: 'GitHubCommitStatusSetter',
+                    reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/KhacThien88/clinic-microservices"],
+                    contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
+                    statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "SUCCESS", message: "Build passed"]]],
+                    credentialsId: 'github-account'
+                ])
+            }
         }
         failure {
-            step([
-                $class: 'GitHubCommitStatusSetter',
-                reposSource: [$class: "ManuallyEnteredRepositorySource", url: "hhttps://github.com/KhacThien88/clinic-microservices"],
-                contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
-                statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "FAILURE", message: "Build failed"]]]
-            ])
+            withCredentials([usernamePassword(credentialsId: 'github-account', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
+                step([
+                    $class: 'GitHubCommitStatusSetter',
+                    reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/KhacThien88/clinic-microservices"],
+                    contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
+                    statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "FAILURE", message: "Build failed"]]],
+                    credentialsId: 'github-account'
+                ])
+            }
         }
         always {
             junit '**/target/surefire-reports/*.xml'
