@@ -18,13 +18,12 @@ pipeline {
                     docker -v
                 '''
                 withCredentials([string(credentialsId: 'token-github', variable: 'GITHUB_TOKEN')]) {
-                    sh '''
-                        echo "PAT starts with: ${GITHUB_TOKEN:0:6}" # Debug PAT
-                    '''
                     step([
                         $class: 'GitHubCommitStatusSetter',
                         contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
                         statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "PENDING", message: "Build started"]]]
+                        gitHubServerId: 'github-server',
+                        commitShaSource: [$class: "ManuallyEnteredShaSource", sha: env.GIT_COMMIT]
                     ])
                 }
             }
@@ -156,6 +155,8 @@ pipeline {
                     $class: 'GitHubCommitStatusSetter',
                     contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
                     statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "SUCCESS", message: "Build passed"]]]
+                    gitHubServerId: 'github-server',
+                    commitShaSource: [$class: "ManuallyEnteredShaSource", sha: env.GIT_COMMIT]
                 ])
             }
         }
@@ -165,6 +166,8 @@ pipeline {
                     $class: 'GitHubCommitStatusSetter',
                     contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
                     statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "FAILURE", message: "Build failed"]]]
+                    gitHubServerId: 'github-server',
+                    commitShaSource: [$class: "ManuallyEnteredShaSource", sha: env.GIT_COMMIT]
                 ])
             }
         }
