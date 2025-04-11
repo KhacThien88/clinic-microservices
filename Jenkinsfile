@@ -17,13 +17,13 @@ pipeline {
                     mvn -version
                     docker -v
                 '''
-                withCredentials([string(credentialsId: 'token-github', variable: 'GITHUB_TOKEN')]) {
-                    step([
-                        $class: 'GitHubCommitStatusSetter',
-                        contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
-                        statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "PENDING", message: "Build started"]]]
-                    ])
-                }
+                step([
+                    $class: "GitHubCommitStatusSetter",
+                    reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/my-org/my-repo"],
+                    contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build-status"],
+                    errorHandlers: [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
+                    statusResultSource: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: "START BUILD", state: "PENDING"]] ]
+                ]);
             }
         }
         stage('Test') {
@@ -148,22 +148,22 @@ pipeline {
     }
     post {
         success {
-            withCredentials([string(credentialsId: 'token-github', variable: 'GITHUB_TOKEN')]) {
-                step([
-                    $class: 'GitHubCommitStatusSetter',
-                    contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
-                    statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "SUCCESS", message: "Build passed"]]]
-                ])
-            }
+            step([
+                $class: "GitHubCommitStatusSetter",
+                reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/my-org/my-repo"],
+                contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build-status"],
+                errorHandlers: [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
+                statusResultSource: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: "Build success", state: "SUCCESS"]] ]
+            ]);
         }
         failure {
-            withCredentials([string(credentialsId: 'token-github', variable: 'GITHUB_TOKEN')]) {
-                step([
-                    $class: 'GitHubCommitStatusSetter',
-                    contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
-                    statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "FAILURE", message: "Build failed"]]]
-                ])
-            }
+            step([
+                $class: "GitHubCommitStatusSetter",
+                reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/my-org/my-repo"],
+                contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build-status"],
+                errorHandlers: [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
+                statusResultSource: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: "Build failed", state: "FAILURE"]] ]
+            ]);
         }
         always {
             junit '**/target/surefire-reports/*.xml'
