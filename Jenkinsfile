@@ -13,13 +13,14 @@ pipeline {
                     mvn -version
                     docker -v
                 '''
-            }
-            step([
+            
+                step([
                     $class: 'GitHubCommitStatusSetter',
                     reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/KhacThien88/clinic-microservices"],
                     contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
                     statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "PENDING", message: "Build started"]]]
                 ])
+            }
         }
         stage('Test') {
             when {
