@@ -2,9 +2,14 @@ pipeline {
     agent any
     environment {
         projectName = 'lab01hcmus'
-        GITHUB_CREDENTIALS = credentials('github-account')
+        GITHUB_TOKEN = credentials('token-github')
     }
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
         stage('Initialize') {
             steps {
                 sh '''
@@ -12,10 +17,9 @@ pipeline {
                     mvn -version
                     docker -v
                 '''
-                withCredentials([usernamePassword(credentialsId: 'github-account', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
+                withCredentials([string(credentialsId: 'token-github', variable: 'GITHUB_TOKEN')]) {
                     step([
                         $class: 'GitHubCommitStatusSetter',
-                        reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/KhacThien88/clinic-microservices"],
                         contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
                         statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "PENDING", message: "Build started"]]]
                     ])
@@ -40,12 +44,11 @@ pipeline {
                     steps {
                         timeout(time: 10, unit: 'MINUTES') {
                             script {
-                                def changedModule = sh(script: "git diff --name-only HEAD^ HEAD | grep -o 'spring-petclinic-[a-z-]*' | head -1", returnStdout: true).trim()
+                                def changedModule = sh(script: "git diff --name-only origin/main...HEAD | grep -o 'spring-petclinic-[a-z-]*' | head -1", returnStdout: true).trim()
                                 if (changedModule) {
                                     sh """
                                         cd ${changedModule}
                                         mvn test surefire-report:report
-                                        echo "Surefire report generated in http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/${changedModule}/target/site/surefire-report.html"
                                     """
                                     junit "${changedModule}/target/surefire-reports/*.xml"
                                 } else {
@@ -59,7 +62,7 @@ pipeline {
                     steps {
                         timeout(time: 2, unit: 'MINUTES') {
                             script {
-                                def changedModule = sh(script: "git diff --name-only HEAD^ HEAD | grep -o 'spring-petclinic-[a-z-]*' | head -1", returnStdout: true).trim()
+                                def changedModule = sh(script: "git diff --name-only origin/main...HEAD | grep -o 'spring-petclinic-[a-z-]*' | head -1", returnStdout: true).trim()
                                 if (changedModule) {
                                     sh """
                                         cd ${changedModule}
@@ -76,7 +79,7 @@ pipeline {
                     steps {
                         timeout(time: 10, unit: 'MINUTES') {
                             script {
-                                def changedModule = sh(script: "git diff --name-only HEAD^ HEAD | grep -o 'spring-petclinic-[a-z-]*' | head -1", returnStdout: true).trim()
+                                def changedModule = sh(script: "git diff --name-only origin/main...HEAD | grep -o 'spring-petclinic-[a-z-]*' | head -1", returnStdout: true).trim()
                                 if (changedModule) {
                                     sh """
                                         cd ${changedModule}
@@ -128,7 +131,7 @@ pipeline {
             }
             steps {
                 script {
-                    def changedModule = sh(script: "git diff --name-only HEAD^ HEAD | grep -o 'spring-petclinic-[a-z-]*' | head -1", returnStdout: true).trim()
+                    def changedModule = sh(script: "git diff --name-only origin/main...HEAD | grep -o 'spring-petclinic-[a-z-]*' | head -1", returnStdout: true).trim()
                     if (changedModule) {
                         sh """
                             cd ${changedModule}
@@ -145,20 +148,18 @@ pipeline {
     }
     post {
         success {
-            withCredentials([usernamePassword(credentialsId: 'github-account', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
+            withCredentials([string(credentialsId: 'token-github', variable: 'GITHUB_TOKEN')]) {
                 step([
                     $class: 'GitHubCommitStatusSetter',
-                    reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/KhacThien88/clinic-microservices"],
                     contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
                     statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "SUCCESS", message: "Build passed"]]]
                 ])
             }
         }
         failure {
-            withCredentials([usernamePassword(credentialsId: 'github-account', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
+            withCredentials([string(credentialsId: 'token-github', variable: 'GITHUB_TOKEN')]) {
                 step([
                     $class: 'GitHubCommitStatusSetter',
-                    reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/KhacThien88/clinic-microservices"],
                     contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
                     statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "FAILURE", message: "Build failed"]]]
                 ])
