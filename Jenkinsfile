@@ -18,6 +18,7 @@ pipeline {
                     docker -v
                 '''
                 withCredentials([string(credentialsId: 'token-github', variable: 'GITHUB_TOKEN')]) {
+                    sh 'echo "PAT starts with: ${GITHUB_TOKEN:0:6}"' // In 6 ký tự đầu để kiểm tra
                     step([
                         $class: 'GitHubCommitStatusSetter',
                         contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
