@@ -22,8 +22,8 @@ pipeline {
                         $class: 'GitHubCommitStatusSetter',
                         contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
                         statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "PENDING", message: "Build started"]]],
-                        gitHubServerId: 'github-server',
-                        commitShaSource: [$class: "ManuallyEnteredShaSource", sha: env.GIT_COMMIT]
+                        commitShaSource: [$class: "ManuallyEnteredShaSource", sha: env.GIT_COMMIT],
+                        credentialsId: 'token-github'
                     ])
                 }
             }
@@ -155,8 +155,8 @@ pipeline {
                     $class: 'GitHubCommitStatusSetter',
                     contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
                     statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "SUCCESS", message: "Build passed"]]],
-                    gitHubServerId: 'github-server',
-                    commitShaSource: [$class: "ManuallyEnteredShaSource", sha: env.GIT_COMMIT]
+                    commitShaSource: [$class: "ManuallyEnteredShaSource", sha: env.GIT_COMMIT],
+                    credentialsId: 'token-github'
                 ])
             }
         }
@@ -166,8 +166,8 @@ pipeline {
                     $class: 'GitHubCommitStatusSetter',
                     contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
                     statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "FAILURE", message: "Build failed"]]],
-                    gitHubServerId: 'github-server',
-                    commitShaSource: [$class: "ManuallyEnteredShaSource", sha: env.GIT_COMMIT]
+                    commitShaSource: [$class: "ManuallyEnteredShaSource", sha: env.GIT_COMMIT],
+                    credentialsId: 'token-github'
                 ])
             }
         }
