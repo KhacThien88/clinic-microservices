@@ -16,7 +16,7 @@ pipeline {
             }
             step([
                     $class: 'GitHubCommitStatusSetter',
-                    reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/<your-username>/<your-repo>"],
+                    reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/KhacThien88/clinic-microservices"],
                     contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
                     statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "PENDING", message: "Build started"]]]
                 ])
@@ -147,6 +147,22 @@ pipeline {
     }
 
     post {
+        success {
+            step([
+                $class: 'GitHubCommitStatusSetter',
+                reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/KhacThien88/clinic-microservices"],
+                contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
+                statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "SUCCESS", message: "Build passed"]]]
+            ])
+        }
+        failure {
+            step([
+                $class: 'GitHubCommitStatusSetter',
+                reposSource: [$class: "ManuallyEnteredRepositorySource", url: "hhttps://github.com/KhacThien88/clinic-microservices"],
+                contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
+                statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "FAILURE", message: "Build failed"]]]
+            ])
+        }
         always {
             junit '**/target/surefire-reports/*.xml'
             archiveArtifacts artifacts: '**/target/site/jacoco/**', allowEmptyArchive: true
