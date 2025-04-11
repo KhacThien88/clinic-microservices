@@ -18,6 +18,7 @@ pipeline {
                     step([
                         $class: 'GitHubCommitStatusSetter',
                         reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/KhacThien88/clinic-microservices"],
+                        commitShaSource: [$class: "ManuallyEnteredShaSource", sha: env.GIT_COMMIT],
                         contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
                         statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "PENDING", message: "Build started"]]],
                         credentialsId: 'github-account'
@@ -156,6 +157,7 @@ pipeline {
                 step([
                     $class: 'GitHubCommitStatusSetter',
                     reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/KhacThien88/clinic-microservices"],
+                    commitShaSource: [$class: "ManuallyEnteredShaSource", sha: env.GIT_COMMIT],
                     contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
                     statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "SUCCESS", message: "Build passed"]]],
                     credentialsId: 'github-account'
@@ -167,6 +169,7 @@ pipeline {
                 step([
                     $class: 'GitHubCommitStatusSetter',
                     reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/KhacThien88/clinic-microservices"],
+                    commitShaSource: [$class: "ManuallyEnteredShaSource", sha: env.GIT_COMMIT],
                     contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build"],
                     statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", state: "FAILURE", message: "Build failed"]]],
                     credentialsId: 'github-account'
@@ -174,8 +177,20 @@ pipeline {
             }
         }
         always {
-            junit '**/target/surefire-reports/*.xml'
-            archiveArtifacts artifacts: '**/target/site/jacoco/**', allowEmptyArchive: true
+            script {
+                def changedModule = sh(script: "git diff --name-only origin/main...HEAD | grep -o 'spring-petclinic-[a-z-]*' | head -1", returnStdout: true).trim()
+                if (changedModule) {
+                    junit "${changedModule}/target/surefire-reports/*.xml"
+                    archiveArtifacts artifacts: "${changedModule}/target/site/jacoco/**", allowEmptyArchive: true
+                    publishHTML(target: [
+                        reportDir: "${changedModule}/target/site",
+                        reportFiles: 'surefire-report.html,jacoco/index.html',
+                        reportName: "Test Reports"
+                    ])
+                } else {
+                    echo "No service module changed, skipping reports."
+                }
+            }
         }
     }
 }
