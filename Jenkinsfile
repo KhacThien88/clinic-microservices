@@ -7,7 +7,7 @@ pipeline {
         projectName = 'lab01hcmus'
         GITHUB_TOKEN = credentials('token-github')
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
-        DOCKERHUB_REPO = 'khacthien88/clinic-microservices'
+        DOCKERHUB_REPO = 'ktei8htop15122004/clinic-microservices'
     }
     stages {
         stage('Checkout') {
