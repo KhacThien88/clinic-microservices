@@ -27,6 +27,7 @@ import org.springframework.cloud.config.server.EnableConfigServer;
 public class ConfigServerApplication {
 
 	public static void main(String[] args) {
+		System.out.println("Starting VetsServiceApplication65232224432232222");
 		SpringApplication.run(ConfigServerApplication.class, args);
 	}
 }

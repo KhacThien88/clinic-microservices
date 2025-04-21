@@ -259,7 +259,6 @@ pipeline {
                         ]
                         def exposedPort = portMap[serviceName] ?: '9966'
                         sh """
-                            # Create a temporary build context
                             mkdir -p docker/build
                             cp ${changedModule}/target/${changedModule}-3.4.1.jar docker/build/
                             cd docker/build

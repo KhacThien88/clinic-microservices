@@ -27,6 +27,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 public class CustomersServiceApplication {
 
 	public static void main(String[] args) {
+		System.out.println("Starting VetsServiceApplication65232224432232222");
 		SpringApplication.run(CustomersServiceApplication.class, args);
 	}
 }
