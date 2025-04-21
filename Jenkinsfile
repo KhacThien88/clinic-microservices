@@ -156,7 +156,7 @@ pipeline {
             when {
                 anyOf {
                     changeset "spring-petclinic-admin-server/**"
-                    changeset "spring-petclinic-customers-service/**"
+                    changeset "spring-petclinic-customers-Service/**"
                     changeset "spring-petclinic-vets-service/**"
                     changeset "spring-petclinic-visits-service/**"
                     changeset "spring-petclinic-genai-service/**"
@@ -214,13 +214,43 @@ pipeline {
                         """
                     }
 
-                    // Simulate deployment
+                    // Deploy services
                     echo "Deploying services..."
                     services.each { svc ->
                         def imageTag = (svc == serviceName && env.DEPLOY_BRANCH) ? "${svc}-${commitId}" : "${svc}-latest"
                         echo "Deploying ${DOCKERHUB_REPO}:${imageTag} for service ${svc}"
-                        // Replace with actual deployment command, e.g., kubectl apply or docker run
-                        sh "echo 'Simulated deployment: docker run -d ${DOCKERHUB_REPO}:${imageTag}'"
+                        sh "docker run -d --name ${svc}-${imageTag} ${DOCKERHUB_REPO}:${imageTag}"
+                    }
+                }
+            }
+        }
+        stage('Cleanup') {
+            when {
+                expression { env.DEPLOY_BRANCH != '' }
+            }
+            steps {
+                script {
+                    def services = [
+                        'admin-server',
+                        'customers-service',
+                        'vets-service',
+                        'visits-service',
+                        'genai-service',
+                        'config-server',
+                        'discovery-server',
+                        'api-gateway'
+                    ]
+                    def changedModule = sh(script: "git diff --name-only origin/main...${env.DEPLOY_BRANCH} | grep -o 'spring-petclinic-[a-z-]*' | head -1", returnStdout: true).trim()
+                    def commitId = sh(script: "git rev-parse --short ${env.DEPLOY_BRANCH}", returnStdout: true).trim()
+                    def serviceName = changedModule ? changedModule.replace('spring-petclinic-', '') : ''
+
+                    echo "Cleaning up deployed containers..."
+                    services.each { svc ->
+                        def imageTag = (svc == serviceName && env.DEPLOY_BRANCH) ? "${svc}-${commitId}" : "${svc}-latest"
+                        sh """
+                            docker rm -f ${svc}-${imageTag} || true
+                            echo "Cleaned up container for ${DOCKERHUB_REPO}:${imageTag}"
+                        """
                     }
                 }
             }
@@ -235,6 +265,7 @@ pipeline {
                 errorHandlers: [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
                 statusResultSource: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: "Build success", state: "SUCCESS"]] ]
             ])
+            echo "Build and cleanup completed successfully. Log: ${env.BUILD_URL}"
         }
         failure {
             step([
@@ -244,6 +275,7 @@ pipeline {
                 errorHandlers: [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
                 statusResultSource: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: "Build failed", state: "FAILURE"]] ]
             ])
+            echo "Build or cleanup failed. Check log: ${env.BUILD_URL}"
         }
         always {
             junit '**/target/surefire-reports/*.xml'
