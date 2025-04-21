@@ -1,8 +1,13 @@
 pipeline {
     agent any
+    parameters {
+        string(name: 'DEPLOY_BRANCH', defaultValue: '', description: 'Branch to deploy for the changed service (e.g., dev_vets_service)')
+    }
     environment {
         projectName = 'lab01hcmus'
         GITHUB_TOKEN = credentials('token-github')
+        DOCKERHUB_CREDENTIALS = credentials('docker-hub-credentials')
+        DOCKERHUB_REPO = 'khacthien88/clinic-microservices'
     }
     stages {
         stage('Checkout') {
@@ -23,7 +28,7 @@ pipeline {
                     contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build-status"],
                     errorHandlers: [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
                     statusResultSource: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: "START BUILD", state: "PENDING"]] ]
-                ]);
+                ])
             }
         }
         stage('Test') {
@@ -38,6 +43,7 @@ pipeline {
                     changeset "spring-petclinic-discovery-server/**"
                     changeset "spring-petclinic-api-gateway/**"
                 }
+                expression { env.DEPLOY_BRANCH == '' }
             }
             parallel {
                 stage('Unit Test') {
@@ -128,6 +134,7 @@ pipeline {
                     changeset "spring-petclinic-discovery-server/**"
                     changeset "spring-petclinic-api-gateway/**"
                 }
+                expression { env.DEPLOY_BRANCH == '' }
             }
             steps {
                 script {
@@ -145,6 +152,79 @@ pipeline {
                 }
             }
         }
+        stage('Docker Build and Push') {
+            when {
+                anyOf {
+                    changeset "spring-petclinic-admin-server/**"
+                    changeset "spring-petclinic-customers-service/**"
+                    changeset "spring-petclinic-vets-service/**"
+                    changeset "spring-petclinic-visits-service/**"
+                    changeset "spring-petclinic-genai-service/**"
+                    changeset "spring-petclinic-config-server/**"
+                    changeset "spring-petclinic-discovery-server/**"
+                    changeset "spring-petclinic-api-gateway/**"
+                }
+                expression { env.DEPLOY_BRANCH == '' }
+            }
+            steps {
+                script {
+                    def changedModule = sh(script: "git diff --name-only origin/main...HEAD | grep -o 'spring-petclinic-[a-z-]*' | head -1", returnStdout: true).trim()
+                    if (changedModule) {
+                        def commitId = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+                        def serviceName = changedModule.replace('spring-petclinic-', '')
+                        sh """
+                            cd ${changedModule}
+                            docker build -t ${DOCKERHUB_REPO}:${serviceName}-${commitId} .
+                            echo \$DOCKERHUB_CREDENTIALS_PSW | docker login -u \$DOCKERHUB_CREDENTIALS_USR --password-stdin
+                            docker push ${DOCKERHUB_REPO}:${serviceName}-${commitId}
+                        """
+                    } else {
+                        echo "No service module changed for Docker Build."
+                    }
+                }
+            }
+        }
+        stage('Developer Build (CD)') {
+            when {
+                expression { env.DEPLOY_BRANCH != '' }
+            }
+            steps {
+                script {
+                    def services = [
+                        'admin-server',
+                        'customers-service',
+                        'vets-service',
+                        'visits-service',
+                        'genai-service',
+                        'config-server',
+                        'discovery-server',
+                        'api-gateway'
+                    ]
+                    def changedModule = sh(script: "git diff --name-only origin/main...${env.DEPLOY_BRANCH} | grep -o 'spring-petclinic-[a-z-]*' | head -1", returnStdout: true).trim()
+                    def commitId = sh(script: "git rev-parse --short ${env.DEPLOY_BRANCH}", returnStdout: true).trim()
+                    def serviceName = changedModule ? changedModule.replace('spring-petclinic-', '') : ''
+
+                    // Build and push the image for the specified branch if a module is changed
+                    if (changedModule && env.DEPLOY_BRANCH) {
+                        sh """
+                            cd ${changedModule}
+                            docker build -t ${DOCKERHUB_REPO}:${serviceName}-${commitId} .
+                            echo \$DOCKERHUB_CREDENTIALS_PSW | docker login -u \$DOCKERHUB_CREDENTIALS_USR --password-stdin
+                            docker push ${DOCKERHUB_REPO}:${serviceName}-${commitId}
+                        """
+                    }
+
+                    // Simulate deployment
+                    echo "Deploying services..."
+                    services.each { svc ->
+                        def imageTag = (svc == serviceName && env.DEPLOY_BRANCH) ? "${svc}-${commitId}" : "${svc}-latest"
+                        echo "Deploying ${DOCKERHUB_REPO}:${imageTag} for service ${svc}"
+                        // Replace with actual deployment command, e.g., kubectl apply or docker run
+                        sh "echo 'Simulated deployment: docker run -d ${DOCKERHUB_REPO}:${imageTag}'"
+                    }
+                }
+            }
+        }
     }
     post {
         success {
@@ -154,7 +234,7 @@ pipeline {
                 contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build-status"],
                 errorHandlers: [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
                 statusResultSource: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: "Build success", state: "SUCCESS"]] ]
-            ]);
+            ])
         }
         failure {
             step([
@@ -163,7 +243,7 @@ pipeline {
                 contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build-status"],
                 errorHandlers: [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
                 statusResultSource: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: "Build failed", state: "FAILURE"]] ]
-            ]);
+            ])
         }
         always {
             junit '**/target/surefire-reports/*.xml'
