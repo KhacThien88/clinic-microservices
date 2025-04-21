@@ -24,6 +24,10 @@ pipeline {
                     mvn -version
                     docker -v
                 '''
+                // Verify Docker Hub login early to catch authentication issues
+                sh '''
+                    echo \$DOCKERHUB_CREDENTIALS_PSW | docker login -u \$DOCKERHUB_CREDENTIALS_USR --password-stdin || { echo "Docker Hub login failed. Check 'dockerhub' credentials in Jenkins."; exit 1; }
+                '''
                 step([
                     $class: "GitHubCommitStatusSetter",
                     reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/KhacThien88/clinic-microservices"],
@@ -174,6 +178,7 @@ pipeline {
                     if (changedModule) {
                         def commitId = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
                         def serviceName = changedModule.replace('spring-petclinic-', '')
+                        // Define service-specific ports (verify these match server.port in each service's application.yml)
                         def portMap = [
                             'admin-server': '9090',
                             'customers-service': '8081',
@@ -194,7 +199,7 @@ pipeline {
                                 --build-arg ARTIFACT_NAME=${changedModule}-3.4.1 \
                                 --build-arg EXPOSED_PORT=${exposedPort} .
                             echo \$DOCKERHUB_CREDENTIALS_PSW | docker login -u \$DOCKERHUB_CREDENTIALS_USR --password-stdin
-                            docker push ${DOCKERHUB_REPO}:${serviceName}-${commitId}
+                            docker push ${DOCKERHUB_REPO}:${serviceName}-${commitId} || { echo "Failed to push ${DOCKERHUB_REPO}:${serviceName}-${commitId}. Check Docker Hub credentials and repository access."; exit 1; }
                             # Clean up temporary build context
                             rm -rf docker/build
                         """
@@ -221,28 +226,33 @@ pipeline {
                         'api-gateway'
                     ]
 
+                    // Validate DEPLOY_BRANCH
                     def branchExists = sh(script: "git ls-remote --heads origin ${env.DEPLOY_BRANCH} | wc -l", returnStdout: true).trim() == '1'
                     if (!branchExists) {
                         error "Branch ${env.DEPLOY_BRANCH} does not exist in the repository."
                     }
 
+                    // Checkout the DEPLOY_BRANCH
                     sh "git checkout ${env.DEPLOY_BRANCH}"
 
                     def changedModule = sh(script: "git diff --name-only origin/main...${env.DEPLOY_BRANCH} | grep -o 'spring-petclinic-[a-z-]*' | head -1", returnStdout: true).trim()
                     def commitId = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
                     def serviceName = changedModule ? changedModule.replace('spring-petclinic-', '') : ''
 
+                    // Build and push the image for the specified branch if a module is changed
                     if (changedModule && env.DEPLOY_BRANCH) {
+                        // Build the service's JAR if not already built
                         sh """
                             cd ${changedModule}
                             mvn clean install -DskipTests
                         """
+                        // Define service-specific ports (verify these match server.port in each service's application.yml)
                         def portMap = [
                             'admin-server': '9090',
                             'customers-service': '8081',
                             'vets-service': '8083',
                             'visits-service': '8082',
-                            'genai-service': '9966',
+                            'genai-service': '8084',
                             'config-server': '8888',
                             'discovery-server': '8761',
                             'api-gateway': '8080'
@@ -257,18 +267,29 @@ pipeline {
                                 --build-arg ARTIFACT_NAME=${changedModule}-3.4.1 \
                                 --build-arg EXPOSED_PORT=${exposedPort} .
                             echo \$DOCKERHUB_CREDENTIALS_PSW | docker login -u \$DOCKERHUB_CREDENTIALS_USR --password-stdin
-                            docker push ${DOCKERHUB_REPO}:${serviceName}-${commitId}
+                            docker push ${DOCKERHUB_REPO}:${serviceName}-${commitId} || { echo "Failed to push ${DOCKERHUB_REPO}:${serviceName}-${commitId}. Check Docker Hub credentials and repository access."; exit 1; }
                             # Clean up temporary build context
                             rm -rf docker/build
                         """
                     }
 
-                    // Deploy services
+                    // Deploy services with port mappings
                     echo "Deploying services..."
+                    def portMap = [
+                        'admin-server': '9090',
+                        'customers-service': '8081',
+                        'vets-service': '8083',
+                        'visits-service': '8082',
+                        'genai-service': '8084',
+                        'config-server': '8888',
+                        'discovery-server': '8761',
+                        'api-gateway': '8080'
+                    ]
                     services.each { svc ->
                         def imageTag = (svc == serviceName && env.DEPLOY_BRANCH && changedModule) ? "${svc}-${commitId}" : "${svc}-latest"
-                        echo "Deploying ${DOCKERHUB_REPO}:${imageTag} for service ${svc}"
-                        sh "docker run -d --name ${svc}-${imageTag} ${DOCKERHUB_REPO}:${imageTag}"
+                        def exposedPort = portMap[svc] ?: '9966'
+                        echo "Deploying ${DOCKERHUB_REPO}:${imageTag} for service ${svc} on port ${exposedPort}"
+                        sh "docker run -d --name ${svc}-${imageTag} -p ${exposedPort}:${exposedPort} ${DOCKERHUB_REPO}:${imageTag}"
                     }
                 }
             }
