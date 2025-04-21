@@ -13,6 +13,8 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
+                // Fetch all branches to ensure DEPLOY_BRANCH is available
+                sh 'git fetch origin'
             }
         }
         stage('Initialize') {
@@ -156,7 +158,7 @@ pipeline {
             when {
                 anyOf {
                     changeset "spring-petclinic-admin-server/**"
-                    changeset "spring-petclinic-customers-Service/**"
+                    changeset "spring-petclinic-customers-service/**"
                     changeset "spring-petclinic-vets-service/**"
                     changeset "spring-petclinic-visits-service/**"
                     changeset "spring-petclinic-genai-service/**"
@@ -200,8 +202,18 @@ pipeline {
                         'discovery-server',
                         'api-gateway'
                     ]
+
+                    // Validate DEPLOY_BRANCH
+                    def branchExists = sh(script: "git ls-remote --heads origin ${env.DEPLOY_BRANCH} | wc -l", returnStdout: true).trim() == '1'
+                    if (!branchExists) {
+                        error "Branch ${env.DEPLOY_BRANCH} does not exist in the repository."
+                    }
+
+                    // Checkout the DEPLOY_BRANCH
+                    sh "git checkout ${env.DEPLOY_BRANCH}"
+
                     def changedModule = sh(script: "git diff --name-only origin/main...${env.DEPLOY_BRANCH} | grep -o 'spring-petclinic-[a-z-]*' | head -1", returnStdout: true).trim()
-                    def commitId = sh(script: "git rev-parse --short ${env.DEPLOY_BRANCH}", returnStdout: true).trim()
+                    def commitId = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
                     def serviceName = changedModule ? changedModule.replace('spring-petclinic-', '') : ''
 
                     // Build and push the image for the specified branch if a module is changed
@@ -217,7 +229,7 @@ pipeline {
                     // Deploy services
                     echo "Deploying services..."
                     services.each { svc ->
-                        def imageTag = (svc == serviceName && env.DEPLOY_BRANCH) ? "${svc}-${commitId}" : "${svc}-latest"
+                        def imageTag = (svc == serviceName && env.DEPLOY_BRANCH && changedModule) ? "${svc}-${commitId}" : "${svc}-latest"
                         echo "Deploying ${DOCKERHUB_REPO}:${imageTag} for service ${svc}"
                         sh "docker run -d --name ${svc}-${imageTag} ${DOCKERHUB_REPO}:${imageTag}"
                     }
@@ -241,12 +253,12 @@ pipeline {
                         'api-gateway'
                     ]
                     def changedModule = sh(script: "git diff --name-only origin/main...${env.DEPLOY_BRANCH} | grep -o 'spring-petclinic-[a-z-]*' | head -1", returnStdout: true).trim()
-                    def commitId = sh(script: "git rev-parse --short ${env.DEPLOY_BRANCH}", returnStdout: true).trim()
+                    def commitId = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
                     def serviceName = changedModule ? changedModule.replace('spring-petclinic-', '') : ''
 
                     echo "Cleaning up deployed containers..."
                     services.each { svc ->
-                        def imageTag = (svc == serviceName && env.DEPLOY_BRANCH) ? "${svc}-${commitId}" : "${svc}-latest"
+                        def imageTag = (svc == serviceName && env.DEPLOY_BRANCH && changedModule) ? "${svc}-${commitId}" : "${svc}-latest"
                         sh """
                             docker rm -f ${svc}-${imageTag} || true
                             echo "Cleaned up container for ${DOCKERHUB_REPO}:${imageTag}"
