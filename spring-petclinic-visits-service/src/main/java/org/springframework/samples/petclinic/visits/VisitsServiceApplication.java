@@ -27,7 +27,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 public class VisitsServiceApplication {
 
     public static void main(String[] args) {
-        System.out.println("Starting VisitsServiceApplicationt123456aaa25");
+        System.out.println("Starting VisitsServiceApplicationt123456aaa225");
         SpringApplication.run(VisitsServiceApplication.class, args);
     }
 }
