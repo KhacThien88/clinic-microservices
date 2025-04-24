@@ -1,8 +1,5 @@
 pipeline {
     agent any
-    parameters {
-        string(name: 'DEPLOY_BRANCH', defaultValue: '', description: 'Branch to deploy for the changed service (e.g., dev_vets_service)')
-    }
     environment {
         projectName = 'lab01hcmus'
         GITHUB_TOKEN = credentials('token-github')
