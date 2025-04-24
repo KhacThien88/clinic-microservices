@@ -3,8 +3,8 @@ pipeline {
 
     environment {
         projectName = 'lab01hcmus'
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub') // Assumes 'dockerhub' credential ID in Jenkins
-        DOCKERHUB_REPO = 'yourusername/clinic-microservices' // Replace 'yourusername' with your DockerHub username
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+        DOCKERHUB_REPO = 'ktei8htop15122004/clinic-microservices'
     }
 
     stages {
@@ -15,7 +15,6 @@ pipeline {
                     mvn -version
                     docker -v
                 '''
-                // Verify Docker Hub login early to catch authentication issues
                 sh '''
                     echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin || { echo "Docker Hub login failed. Check 'dockerhub' credentials in Jenkins."; exit 1; }
                 '''
