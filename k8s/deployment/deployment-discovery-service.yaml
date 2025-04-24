@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: discovery-service-deployment
+  namespace: spring-clinic
+  labels:
+    app: discovery-service
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 25%
+  selector:
+    matchLabels:
+      app: discovery-service
+  template:
+    metadata:
+      labels:
+        app: discovery-service
+    spec:
+      containers:
+      - name: discovery-service
+        image: springcommunity/spring-petclinic-discovery-server
+        ports:
+        - containerPort: 8761
+        resources:
+          requests:
+            memory: "125Mi"
+            cpu: "125m"
+          limits:
+            memory: "250Mi"
+            cpu: "250m"
