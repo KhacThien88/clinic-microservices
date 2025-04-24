@@ -30,7 +30,7 @@ import org.springframework.samples.petclinic.vets.system.VetsProperties;
 public class VetsServiceApplication {
 
 	public static void main(String[] args) {
-		System.out.println("Starting VetsServiceApplication65232224432232222");
+		System.out.println("Starting VetsServiceApplication652322244322232222");
 		SpringApplication.run(VetsServiceApplication.class, args);
 	}
 }
