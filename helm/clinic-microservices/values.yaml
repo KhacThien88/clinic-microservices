@@ -1,0 +1,388 @@
+global:
+  namespace: spring-clinic
+  imagePullPolicy: IfNotPresent
+
+services:
+  admin:
+    enabled: true
+    replicaCount: 2
+    image:
+      repository: springcommunity/spring-petclinic-admin-server
+      tag: "latest"
+    containerPort: 9090
+    service:
+      type: ClusterIP
+      port: 80
+      targetPort: 9090
+    resources:
+      requests:
+        memory: "125Mi"
+        cpu: "125m"
+      limits:
+        memory: "250Mi"
+        cpu: "250m"
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 50%
+        maxUnavailable: 25%
+    hpa:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 3
+      metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 50
+        - type: Resource
+          resource:
+            name: memory
+            target:
+              type: Utilization
+              averageUtilization: 70
+
+  apiGateway:
+    enabled: true
+    replicaCount: 2
+    image:
+      repository: springcommunity/spring-petclinic-api-gateway
+      tag: "latest"
+    containerPort: 8080
+    service:
+      type: ClusterIP
+      port: 80
+      targetPort: 8080
+    resources:
+      requests:
+        memory: "250Mi"
+        cpu: "250m"
+      limits:
+        memory: "300Mi"
+        cpu: "300m"
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 50%
+        maxUnavailable: 25%
+    hpa:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 3
+      metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 50
+        - type: Resource
+          resource:
+            name: memory
+            target:
+              type: Utilization
+              averageUtilization: 70
+
+  config:
+    enabled: true
+    replicaCount: 2
+    image:
+      repository: springcommunity/spring-petclinic-config-server
+      tag: "latest"
+    containerPort: 8888
+    service:
+      type: ClusterIP
+      port: 80
+      targetPort: 8888
+    resources:
+      requests:
+        memory: "125Mi"
+        cpu: "125m"
+      limits:
+        memory: "250Mi"
+        cpu: "250m"
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 50%
+        maxUnavailable: 25%
+    hpa:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 3
+      metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 50
+        - type: Resource
+          resource:
+            name: memory
+            target:
+              type: Utilization
+              averageUtilization: 70
+
+  customer:
+    enabled: true
+    replicaCount: 2
+    image:
+      repository: springcommunity/spring-petclinic-customers-service
+      tag: "latest"
+    containerPort: 8081
+    service:
+      type: ClusterIP
+      port: 80
+      targetPort: 8081
+    resources:
+      requests:
+        memory: "125Mi"
+        cpu: "125m"
+      limits:
+        memory: "250Mi"
+        cpu: "250m"
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 50%
+        maxUnavailable: 25%
+    hpa:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 3
+      metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 50
+        - type: Resource
+          resource:
+            name: memory
+            target:
+              type: Utilization
+              averageUtilization: 70
+
+  discovery:
+    enabled: true
+    replicaCount: 2
+    image:
+      repository: springcommunity/spring-petclinic-discovery-server
+      tag: "latest"
+    containerPort: 8761
+    service:
+      type: ClusterIP
+      port: 80
+      targetPort: 8761
+    resources:
+      requests:
+        memory: "125Mi"
+        cpu: "125m"
+      limits:
+        memory: "250Mi"
+        cpu: "250m"
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 50%
+        maxUnavailable: 25%
+    hpa:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 3
+      metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 50
+        - type: Resource
+          resource:
+            name: memory
+            target:
+              type: Utilization
+              averageUtilization: 70
+
+  genai:
+    enabled: true
+    replicaCount: 2
+    image:
+      repository: springcommunity/spring-petclinic-genai-service
+      tag: "latest"
+    containerPort: 8084
+    service:
+      type: ClusterIP
+      port: 80
+      targetPort: 8084
+    resources:
+      requests:
+        memory: "250Mi"
+        cpu: "250m"
+      limits:
+        memory: "300Mi"
+        cpu: "300m"
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 50%
+        maxUnavailable: 25%
+    hpa:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 3
+      metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 50
+        - type: Resource
+          resource:
+            name: memory
+            target:
+              type: Utilization
+              averageUtilization: 70
+
+  tracing:
+    enabled: true
+    replicaCount: 2
+    image:
+      repository: openzipkin/zipkin
+      tag: "latest"
+    containerPort: 9411
+    service:
+      type: ClusterIP
+      port: 80
+      targetPort: 9411
+    resources:
+      requests:
+        memory: "125Mi"
+        cpu: "125m"
+      limits:
+        memory: "250Mi"
+        cpu: "250m"
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 50%
+        maxUnavailable: 25%
+    hpa:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 3
+      metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 50
+        - type: Resource
+          resource:
+            name: memory
+            target:
+              type: Utilization
+              averageUtilization: 70
+
+  vets:
+    enabled: true
+    replicaCount: 2
+    image:
+      repository: springcommunity/spring-petclinic-vets-service
+      tag: "latest"
+    containerPort: 8083
+    service:
+      type: ClusterIP
+      port: 80
+      targetPort: 8083
+    resources:
+      requests:
+        memory: "125Mi"
+        cpu: "125m"
+      limits:
+        memory: "250Mi"
+        cpu: "250m"
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 50%
+        maxUnavailable: 25%
+    hpa:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 3
+      metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 50
+        - type: Resource
+          resource:
+            name: memory
+            target:
+              type: Utilization
+              averageUtilization: 70
+
+  visits:
+    enabled: true
+    replicaCount: 2
+    image:
+      repository: springcommunity/spring-petclinic-visits-service
+      tag: "latest"
+    containerPort: 8082
+    service:
+      type: ClusterIP
+      port: 80
+      targetPort: 8082
+    resources:
+      requests:
+        memory: "125Mi"
+        cpu: "125m"
+      limits:
+        memory: "250Mi"
+        cpu: "250m"
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 50%
+        maxUnavailable: 25%
+    hpa:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 3
+      metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 50
+        - type: Resource
+          resource:
+            name: memory
+            target:
+              type: Utilization
+              averageUtilization: 70
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  rules:
+    - host: "testenv-pet-clinic.khacthienit.click"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: 80

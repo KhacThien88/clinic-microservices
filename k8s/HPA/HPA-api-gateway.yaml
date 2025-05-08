@@ -1,13 +1,13 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: admin-server-hpa
+  name: api-gateway-hpa
   namespace: spring-clinic
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: admin-server-deployment
+    name: api-gateway-deployment
   minReplicas: 1
   maxReplicas: 3
   metrics:

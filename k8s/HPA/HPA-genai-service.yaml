@@ -1,13 +1,13 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: customer-service-hpa
+  name: genai-service-hpa
   namespace: spring-clinic
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: customer-service-deployment
+    name: genai-service-deployment
   minReplicas: 1
   maxReplicas: 3
   metrics:

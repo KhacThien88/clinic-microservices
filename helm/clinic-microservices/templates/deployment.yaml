@@ -1,0 +1,35 @@
+{{- range $key, $value := .Values.services }}
+{{- if $value.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $.Release.Name }}-{{ $key }}
+  namespace: {{ $.Values.global.namespace }}
+  labels:
+    app: {{ $key }}
+spec:
+  replicas: {{ $value.replicaCount }}
+  strategy:
+    type: {{ $value.strategy.type }}
+    rollingUpdate:
+      maxSurge: {{ $value.strategy.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ $value.strategy.rollingUpdate.maxUnavailable }}
+  selector:
+    matchLabels:
+      app: {{ $key }}
+  template:
+    metadata:
+      labels:
+        app: {{ $key }}
+    spec:
+      containers:
+      - name: {{ $key }}
+        image: "{{ $value.image.repository }}:{{ $value.image.tag }}"
+        imagePullPolicy: {{ $.Values.global.imagePullPolicy }}
+        ports:
+        - containerPort: {{ $value.containerPort }}
+        resources:
+          {{- toYaml $value.resources | nindent 12 }}
+{{- end }}
+{{- end }}

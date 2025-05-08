@@ -1,0 +1,119 @@
+global:
+  namespace: spring-clinic-production
+  imagePullPolicy: Always
+
+services:
+  admin:
+    replicaCount: 3
+    image:
+      tag: "production"
+    resources:
+      requests:
+        memory: "150Mi"
+        cpu: "150m"
+      limits:
+        memory: "300Mi"
+        cpu: "300m"
+  apiGateway:
+    replicaCount: 3
+    image:
+      tag: "production"
+    resources:
+      requests:
+        memory: "300Mi"
+        cpu: "300m"
+      limits:
+        memory: "400Mi"
+        cpu: "400m"
+  config:
+    replicaCount: 3
+    image:
+      tag: "production"
+    resources:
+      requests:
+        memory: "150Mi"
+        cpu: "150m"
+      limits:
+        memory: "300Mi"
+        cpu: "300m"
+  customer:
+    replicaCount: 3
+    image:
+      tag: "production"
+    resources:
+      requests:
+        memory: "150Mi"
+        cpu: "150m"
+      limits:
+        memory: "300Mi"
+        cpu: "300m"
+  discovery:
+    replicaCount: 3
+    image:
+      tag: "production"
+    resources:
+      requests:
+        memory: "150Mi"
+        cpu: "150m"
+      limits:
+        memory: "300Mi"
+        cpu: "300m"
+  genai:
+    replicaCount: 3
+    image:
+      tag: "production"
+    resources:
+      requests:
+        memory: "300Mi"
+        cpu: "300m"
+      limits:
+        memory: "400Mi"
+        cpu: "400m"
+  tracing:
+    replicaCount: 3
+    image:
+      tag: "latest"
+    resources:
+      requests:
+        memory: "150Mi"
+        cpu: "150m"
+      limits:
+        memory: "300Mi"
+        cpu: "300m"
+  vets:
+    replicaCount: 3
+    image:
+      tag: "production"
+    resources:
+      requests:
+        memory: "150Mi"
+        cpu: "150m"
+      limits:
+        memory: "300Mi"
+        cpu: "300m"
+  visits:
+    replicaCount: 3
+    image:
+      tag: "production"
+    resources:
+      requests:
+        memory: "150Mi"
+        cpu: "150m"
+      limits:
+        memory: "300Mi"
+        cpu: "300m"
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  rules:
+    - host: "prod-pet-clinic.khacthienit.click"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: 80

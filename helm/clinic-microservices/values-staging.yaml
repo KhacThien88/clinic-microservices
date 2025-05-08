@@ -1,0 +1,119 @@
+global:
+  namespace: spring-clinic-staging
+  imagePullPolicy: IfNotPresent
+
+services:
+  admin:
+    replicaCount: 1
+    image:
+      tag: "staging"
+    resources:
+      requests:
+        memory: "100Mi"
+        cpu: "100m"
+      limits:
+        memory: "200Mi"
+        cpu: "200m"
+  apiGateway:
+    replicaCount: 1
+    image:
+      tag: "staging"
+    resources:
+      requests:
+        memory: "200Mi"
+        cpu: "200m"
+      limits:
+        memory: "250Mi"
+        cpu: "250m"
+  config:
+    replicaCount: 1
+    image:
+      tag: "staging"
+    resources:
+      requests:
+        memory: "100Mi"
+        cpu: "100m"
+      limits:
+        memory: "200Mi"
+        cpu: "200m"
+  customer:
+    replicaCount: 1
+    image:
+      tag: "staging"
+    resources:
+      requests:
+        memory: "100Mi"
+        cpu: "100m"
+      limits:
+        memory: "200Mi"
+        cpu: "200m"
+  discovery:
+    replicaCount: 1
+    image:
+      tag: "staging"
+    resources:
+      requests:
+        memory: "100Mi"
+        cpu: "100m"
+      limits:
+        memory: "200Mi"
+        cpu: "200m"
+  genai:
+    replicaCount: 1
+    image:
+      tag: "staging"
+    resources:
+      requests:
+        memory: "200Mi"
+        cpu: "200m"
+      limits:
+        memory: "250Mi"
+        cpu: "250m"
+  tracing:
+    replicaCount: 1
+    image:
+      tag: "latest"
+    resources:
+      requests:
+        memory: "100Mi"
+        cpu: "100m"
+      limits:
+        memory: "200Mi"
+        cpu: "200m"
+  vets:
+    replicaCount: 1
+    image:
+      tag: "staging"
+    resources:
+      requests:
+        memory: "100Mi"
+        cpu: "100m"
+      limits:
+        memory: "200Mi"
+        cpu: "200m"
+  visits:
+    replicaCount: 1
+    image:
+      tag: "staging"
+    resources:
+      requests:
+        memory: "100Mi"
+        cpu: "100m"
+      limits:
+        memory: "200Mi"
+        cpu: "200m"
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  rules:
+    - host: "stagingenv-pet-clinic.khacthienit.click"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: 80
