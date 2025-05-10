@@ -5,8 +5,6 @@ global:
 services:
   admin:
     replicaCount: 3
-    image:
-      tag: "production"
     resources:
       requests:
         memory: "150Mi"
@@ -16,8 +14,6 @@ services:
         cpu: "300m"
   apigateway:
     replicaCount: 3
-    image:
-      tag: "production"
     resources:
       requests:
         memory: "300Mi"
@@ -27,8 +23,6 @@ services:
         cpu: "400m"
   config:
     replicaCount: 3
-    image:
-      tag: "production"
     resources:
       requests:
         memory: "150Mi"
@@ -38,8 +32,6 @@ services:
         cpu: "300m"
   customer:
     replicaCount: 3
-    image:
-      tag: "production"
     resources:
       requests:
         memory: "150Mi"
@@ -49,8 +41,6 @@ services:
         cpu: "300m"
   discovery:
     replicaCount: 3
-    image:
-      tag: "production"
     resources:
       requests:
         memory: "150Mi"
@@ -60,8 +50,6 @@ services:
         cpu: "300m"
   genai:
     replicaCount: 3
-    image:
-      tag: "production"
     resources:
       requests:
         memory: "300Mi"
@@ -71,8 +59,6 @@ services:
         cpu: "400m"
   tracing:
     replicaCount: 3
-    image:
-      tag: "latest"
     resources:
       requests:
         memory: "150Mi"
@@ -82,8 +68,6 @@ services:
         cpu: "300m"
   vets:
     replicaCount: 3
-    image:
-      tag: "production"
     resources:
       requests:
         memory: "150Mi"
@@ -93,8 +77,6 @@ services:
         cpu: "300m"
   visits:
     replicaCount: 3
-    image:
-      tag: "production"
     resources:
       requests:
         memory: "150Mi"

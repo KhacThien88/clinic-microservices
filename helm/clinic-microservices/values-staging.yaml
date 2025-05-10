@@ -5,8 +5,6 @@ global:
 services:
   admin:
     replicaCount: 1
-    image:
-      tag: "staging"
     resources:
       requests:
         memory: "100Mi"
@@ -16,8 +14,6 @@ services:
         cpu: "200m"
   apigateway:
     replicaCount: 1
-    image:
-      tag: "staging"
     resources:
       requests:
         memory: "200Mi"
@@ -27,8 +23,6 @@ services:
         cpu: "250m"
   config:
     replicaCount: 1
-    image:
-      tag: "staging"
     resources:
       requests:
         memory: "100Mi"
@@ -38,8 +32,6 @@ services:
         cpu: "200m"
   customer:
     replicaCount: 1
-    image:
-      tag: "staging"
     resources:
       requests:
         memory: "100Mi"
@@ -49,8 +41,6 @@ services:
         cpu: "200m"
   discovery:
     replicaCount: 1
-    image:
-      tag: "staging"
     resources:
       requests:
         memory: "100Mi"
@@ -60,8 +50,6 @@ services:
         cpu: "200m"
   genai:
     replicaCount: 1
-    image:
-      tag: "staging"
     resources:
       requests:
         memory: "200Mi"
@@ -71,8 +59,6 @@ services:
         cpu: "250m"
   tracing:
     replicaCount: 1
-    image:
-      tag: "latest"
     resources:
       requests:
         memory: "100Mi"
@@ -82,8 +68,6 @@ services:
         cpu: "200m"
   vets:
     replicaCount: 1
-    image:
-      tag: "staging"
     resources:
       requests:
         memory: "100Mi"
@@ -93,8 +77,6 @@ services:
         cpu: "200m"
   visits:
     replicaCount: 1
-    image:
-      tag: "staging"
     resources:
       requests:
         memory: "100Mi"
