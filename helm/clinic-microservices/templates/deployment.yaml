@@ -23,6 +23,7 @@ spec:
       labels:
         app: {{ $key }}
     spec:
+      tolerations: {{ $.Values.global.tolerations | toYaml | nindent 8 }}
       containers:
       - name: {{ $key }}
         image: "{{ $value.image.repository }}:{{ $value.image.tag }}"
