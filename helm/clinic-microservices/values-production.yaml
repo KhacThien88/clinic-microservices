@@ -114,6 +114,6 @@ ingress:
             pathType: Prefix
             backend:
               service:
-                name: api-gateway
+                name: clinic-production-apiGateway
                 port:
                   number: 80
