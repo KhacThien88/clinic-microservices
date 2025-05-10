@@ -1,7 +1,10 @@
 global:
   namespace: spring-clinic
   imagePullPolicy: IfNotPresent
-
+  tolerations:
+    - key: "node-role.kubernetes.io/control-plane"
+      operator: "Exists"
+      effect: "NoSchedule"
 services:
   admin:
     enabled: true
@@ -335,7 +338,7 @@ spec:
     - key: "node-role.kubernetes.io/control-plane"
       operator: "Exists"
       effect: "NoSchedule"
-      
+
 ingress:
   enabled: true
   ingressClassName: nginx

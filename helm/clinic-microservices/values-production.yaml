@@ -1,7 +1,10 @@
 global:
   namespace: spring-clinic-production
   imagePullPolicy: Always
-
+  tolerations:
+    - key: "node-role.kubernetes.io/control-plane"
+      operator: "Exists"
+      effect: "NoSchedule"
 services:
   admin:
     replicaCount: 3
@@ -80,7 +83,7 @@ spec:
     - key: "node-role.kubernetes.io/control-plane"
       operator: "Exists"
       effect: "NoSchedule"
-      
+
 ingress:
   enabled: true
   ingressClassName: nginx
