@@ -57,15 +57,6 @@ services:
       limits:
         memory: "250Mi"
         cpu: "250m"
-  tracing:
-    replicaCount: 1
-    resources:
-      requests:
-        memory: "100Mi"
-        cpu: "100m"
-      limits:
-        memory: "200Mi"
-        cpu: "200m"
   vets:
     replicaCount: 1
     resources:

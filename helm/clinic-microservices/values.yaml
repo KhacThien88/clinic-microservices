@@ -249,47 +249,6 @@ services:
               type: Utilization
               averageUtilization: 70
 
-  tracing:
-    enabled: true
-    replicaCount: 2
-    image:
-      repository: openzipkin/zipkin
-      tag: "latest"
-    containerPort: 9411
-    service:
-      type: ClusterIP
-      port: 80
-      targetPort: 9411
-    resources:
-      requests:
-        memory: "125Mi"
-        cpu: "125m"
-      limits:
-        memory: "250Mi"
-        cpu: "250m"
-    strategy:
-      type: RollingUpdate
-      rollingUpdate:
-        maxSurge: 50%
-        maxUnavailable: 25%
-    hpa:
-      enabled: true
-      minReplicas: 1
-      maxReplicas: 3
-      metrics:
-        - type: Resource
-          resource:
-            name: cpu
-            target:
-              type: Utilization
-              averageUtilization: 50
-        - type: Resource
-          resource:
-            name: memory
-            target:
-              type: Utilization
-              averageUtilization: 70
-
   vets:
     enabled: true
     replicaCount: 2
