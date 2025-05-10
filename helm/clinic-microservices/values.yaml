@@ -330,7 +330,12 @@ services:
             target:
               type: Utilization
               averageUtilization: 70
-
+spec:
+  tolerations:
+    - key: "node-role.kubernetes.io/control-plane"
+      operator: "Exists"
+      effect: "NoSchedule"
+      
 ingress:
   enabled: true
   ingressClassName: nginx
