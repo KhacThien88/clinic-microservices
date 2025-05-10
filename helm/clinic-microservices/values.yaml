@@ -44,7 +44,7 @@ services:
               type: Utilization
               averageUtilization: 70
 
-  apiGateway:
+  apigateway:
     enabled: true
     replicaCount: 2
     image:
@@ -383,6 +383,6 @@ ingress:
             pathType: Prefix
             backend:
               service:
-                name: apiGateway
+                name: apigateway
                 port:
                   number: 80

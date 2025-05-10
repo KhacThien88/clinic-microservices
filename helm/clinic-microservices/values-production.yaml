@@ -14,7 +14,7 @@ services:
       limits:
         memory: "300Mi"
         cpu: "300m"
-  apiGateway:
+  apigateway:
     replicaCount: 3
     image:
       tag: "production"
@@ -114,6 +114,6 @@ ingress:
             pathType: Prefix
             backend:
               service:
-                name: clinic-production-apiGateway
+                name: clinic-production-apigateway
                 port:
                   number: 80

@@ -14,7 +14,7 @@ services:
       limits:
         memory: "200Mi"
         cpu: "200m"
-  apiGateway:
+  apigateway:
     replicaCount: 1
     image:
       tag: "staging"
@@ -114,6 +114,6 @@ ingress:
             pathType: Prefix
             backend:
               service:
-                name: clinic-staging-apiGateway
+                name: clinic-staging-apigateway
                 port:
                   number: 80
