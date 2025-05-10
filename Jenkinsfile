@@ -24,7 +24,7 @@ pipeline {
         stage('Test') {
             when {
                 anyOf {
-                    changeset "spring-petclinic-vets-service/**"
+                    changeset "spring-petclinic-genai-service/**"
                 }
             }
             parallel {
@@ -72,7 +72,7 @@ pipeline {
         stage('Build') {
             when {
                 anyOf {
-                    changeset "spring-petclinic-vets-service/**"
+                    changeset "spring-petclinic-genai-service/**"
                 }
             }
             steps {
@@ -133,7 +133,7 @@ pipeline {
         stage('Docker Build and Push') {
             when {
                 anyOf {
-                    changeset "spring-petclinic-vets-service/**"
+                    changeset "spring-petclinic-genai-service/**"
                 }
             }
             steps {
@@ -143,9 +143,9 @@ pipeline {
                         def commitId = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
                         def serviceName = changedModule.replace('spring-petclinic-', '')
                         def portMap = [
-                            'vets-service': '8083'
+                            'genai-service': '8084'
                         ]
-                        def exposedPort = portMap[serviceName] ?: '8083'
+                        def exposedPort = portMap[serviceName] ?: '8084'
                         sh """
                             # Create a temporary build context
                             mkdir -p docker/build
