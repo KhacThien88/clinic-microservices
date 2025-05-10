@@ -16,11 +16,11 @@ services:
       targetPort: 9090
     resources:
       requests:
-        memory: "125Mi"
-        cpu: "125m"
+        memory: "100Mi"
+        cpu: "100m"
       limits:
-        memory: "250Mi"
-        cpu: "250m"
+        memory: "150Mi"
+        cpu: "150m"
     strategy:
       type: RollingUpdate
       rollingUpdate:
@@ -57,11 +57,11 @@ services:
       targetPort: 8080
     resources:
       requests:
-        memory: "250Mi"
-        cpu: "250m"
+        memory: "100Mi"
+        cpu: "100m"
       limits:
-        memory: "300Mi"
-        cpu: "300m"
+        memory: "150Mi"
+        cpu: "150m"
     strategy:
       type: RollingUpdate
       rollingUpdate:
@@ -98,11 +98,11 @@ services:
       targetPort: 8888
     resources:
       requests:
-        memory: "125Mi"
-        cpu: "125m"
+        memory: "100Mi"
+        cpu: "100m"
       limits:
-        memory: "250Mi"
-        cpu: "250m"
+        memory: "150Mi"
+        cpu: "150m"
     strategy:
       type: RollingUpdate
       rollingUpdate:
@@ -139,11 +139,11 @@ services:
       targetPort: 8081
     resources:
       requests:
-        memory: "125Mi"
+        memory: "100Mi"
         cpu: "125m"
       limits:
-        memory: "250Mi"
-        cpu: "250m"
+        memory: "150Mi"
+        cpu: "150m"
     strategy:
       type: RollingUpdate
       rollingUpdate:
@@ -180,11 +180,11 @@ services:
       targetPort: 8761
     resources:
       requests:
-        memory: "125Mi"
+        memory: "100Mi"
         cpu: "125m"
       limits:
-        memory: "250Mi"
-        cpu: "250m"
+        memory: "150Mi"
+        cpu: "150m"
     strategy:
       type: RollingUpdate
       rollingUpdate:
@@ -221,11 +221,11 @@ services:
       targetPort: 8084
     resources:
       requests:
-        memory: "250Mi"
-        cpu: "250m"
+        memory: "100Mi"
+        cpu: "100m"
       limits:
-        memory: "300Mi"
-        cpu: "300m"
+        memory: "150Mi"
+        cpu: "150m"
     strategy:
       type: RollingUpdate
       rollingUpdate:
@@ -265,8 +265,8 @@ services:
         memory: "125Mi"
         cpu: "125m"
       limits:
-        memory: "250Mi"
-        cpu: "250m"
+        memory: "150Mi"
+        cpu: "150m"
     strategy:
       type: RollingUpdate
       rollingUpdate:
@@ -306,8 +306,8 @@ services:
         memory: "125Mi"
         cpu: "125m"
       limits:
-        memory: "250Mi"
-        cpu: "250m"
+        memory: "150Mi"
+        cpu: "150m"
     strategy:
       type: RollingUpdate
       rollingUpdate:

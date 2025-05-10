@@ -10,17 +10,17 @@ services:
         memory: "100Mi"
         cpu: "100m"
       limits:
-        memory: "200Mi"
-        cpu: "200m"
+        memory: "150Mi"
+        cpu: "150m"
   apigateway:
     replicaCount: 1
     resources:
       requests:
-        memory: "200Mi"
-        cpu: "200m"
+        memory: "100Mi"
+        cpu: "100m"
       limits:
-        memory: "250Mi"
-        cpu: "250m"
+        memory: "150Mi"
+        cpu: "150m"
   config:
     replicaCount: 1
     resources:
@@ -28,8 +28,8 @@ services:
         memory: "100Mi"
         cpu: "100m"
       limits:
-        memory: "200Mi"
-        cpu: "200m"
+        memory: "150Mi"
+        cpu: "150m"
   customer:
     replicaCount: 1
     resources:
@@ -37,8 +37,8 @@ services:
         memory: "100Mi"
         cpu: "100m"
       limits:
-        memory: "200Mi"
-        cpu: "200m"
+        memory: "150Mi"
+        cpu: "150m"
   discovery:
     replicaCount: 1
     resources:
@@ -46,17 +46,17 @@ services:
         memory: "100Mi"
         cpu: "100m"
       limits:
-        memory: "200Mi"
-        cpu: "200m"
+        memory: "150Mi"
+        cpu: "150m"
   genai:
     replicaCount: 1
     resources:
       requests:
-        memory: "200Mi"
-        cpu: "200m"
+        memory: "100Mi"
+        cpu: "150m"
       limits:
-        memory: "250Mi"
-        cpu: "250m"
+        memory: "150Mi"
+        cpu: "150m"
   vets:
     replicaCount: 1
     resources:
@@ -64,8 +64,8 @@ services:
         memory: "100Mi"
         cpu: "100m"
       limits:
-        memory: "200Mi"
-        cpu: "200m"
+        memory: "150Mi"
+        cpu: "150m"
   visits:
     replicaCount: 1
     resources:
@@ -73,8 +73,8 @@ services:
         memory: "100Mi"
         cpu: "100m"
       limits:
-        memory: "200Mi"
-        cpu: "200m"
+        memory: "150Mi"
+        cpu: "150m"
 
 ingress:
   enabled: true
