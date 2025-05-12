@@ -7,10 +7,10 @@ metadata:
   name: {{ if eq $key "config" }}config-server{{ else }}{{ $.Release.Name }}-{{ $key }}{{ end }}
   namespace: {{ $.Values.global.namespace }}
   labels:
-    app: {{ $key }}
+    app: {{ if eq $key "config" }}config-server{{ else }}{{ $key }}{{ end }}
 spec:
   selector:
-    app: {{ $key }}
+    app: {{ if eq $key "config" }}config-server{{ else }}{{ $key }}{{ end }}
   ports:
   - protocol: TCP
     port: {{ $value.service.port }}
