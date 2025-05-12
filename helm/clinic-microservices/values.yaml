@@ -97,7 +97,7 @@ services:
     containerPort: 8888
     service:
       type: ClusterIP
-      port: 80
+      port: 8888
       targetPort: 8888
     resources:
       requests:
