@@ -5,6 +5,9 @@ global:
     - key: "node-role.kubernetes.io/control-plane"
       operator: "Exists"
       effect: "NoSchedule"
+  configServer:
+    url: "http://config-server:8888"
+    enabled: true
 services:
   admin:
     enabled: true
