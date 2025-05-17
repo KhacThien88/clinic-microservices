@@ -2,8 +2,34 @@ spring:
   application:
     name: admin-server
   config:
-    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
+    import: optional:configserver:${CONFIG_SERVER_URL:http://config-server.spring-clinic.svc.cluster.local:8888}
+    fail-fast: true
+    retry:
+      initial-interval: 2000
+      max-interval: 5000
+      max-attempts: 30
+  boot:
+    admin:
+      ui:
+        title: PetClinic Admin (Kubernetes)
+      discovery:
+        services: 
+          - vets-service.spring-clinic.svc.cluster.local
+          - visits-service.spring-clinic.svc.cluster.local
+          - customers-service.spring-clinic.svc.cluster.local
+          - api-gateway.spring-clinic.svc.cluster.local
+          - genai-service.spring-clinic.svc.cluster.local
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+    info:
+      enabled: true
 
 ---
 spring:
