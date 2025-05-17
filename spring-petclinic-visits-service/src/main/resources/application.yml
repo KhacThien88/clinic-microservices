@@ -2,8 +2,12 @@ spring:
   application:
     name: visits-service
   config:
-    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
-
+    import: optional:configserver:${CONFIG_SERVER_URL:http://config-server.spring-clinic.svc.cluster.local:8888}
+    fail-fast: true
+    retry:
+      initial-interval: 1000
+      max-interval: 2000
+      max-attempts: 20
 
 ---
 spring:
