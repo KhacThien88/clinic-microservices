@@ -13,8 +13,8 @@ services:
     enabled: true
     replicaCount: 2
     image:
-      repository: springcommunity/spring-petclinic-admin-server
-      tag: "latest"
+      repository: ktei8htop15122004/clinic-microservices
+      tag: "admin-server-98e7ea3"
     containerPort: 9090
     service:
       type: ClusterIP
@@ -54,8 +54,8 @@ services:
     enabled: true
     replicaCount: 2
     image:
-      repository: springcommunity/spring-petclinic-api-gateway
-      tag: "latest"
+      repository: ktei8htop15122004/clinic-microservices
+      tag: "api-gateway-b741caa"
     containerPort: 8080
     service:
       type: ClusterIP
@@ -136,8 +136,8 @@ services:
     enabled: true
     replicaCount: 2
     image:
-      repository: springcommunity/spring-petclinic-customers-service
-      tag: "latest"
+      repository: ktei8htop15122004/clinic-microservices
+      tag: "customers-service-6bd487f"
     containerPort: 8081
     service:
       type: ClusterIP
@@ -177,8 +177,8 @@ services:
     enabled: true
     replicaCount: 2
     image:
-      repository: springcommunity/spring-petclinic-discovery-server
-      tag: "latest"
+      repository: ktei8htop15122004/clinic-microservices
+      tag: "discovery-server-3691f6b"
     containerPort: 8761
     service:
       type: ClusterIP
@@ -259,8 +259,8 @@ services:
     enabled: true
     replicaCount: 2
     image:
-      repository: springcommunity/spring-petclinic-vets-service
-      tag: "latest"
+      repository: ktei8htop15122004/clinic-microservices
+      tag: "vets-service-2cadb97"
     containerPort: 8083
     service:
       type: ClusterIP
@@ -300,8 +300,8 @@ services:
     enabled: true
     replicaCount: 2
     image:
-      repository: springcommunity/spring-petclinic-visits-service
-      tag: "latest"
+      repository: ktei8htop15122004/clinic-microservices
+      tag: "visits-service-938308a"
     containerPort: 8082
     service:
       type: ClusterIP
