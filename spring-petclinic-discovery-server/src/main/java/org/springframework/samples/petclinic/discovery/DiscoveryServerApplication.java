@@ -27,6 +27,7 @@ import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 public class DiscoveryServerApplication {
 
 	public static void main(String[] args) {
+		System.out.println("Starting VetsServiceApplication652322244322232222");
 		SpringApplication.run(DiscoveryServerApplication.class, args);
 	}
 }
