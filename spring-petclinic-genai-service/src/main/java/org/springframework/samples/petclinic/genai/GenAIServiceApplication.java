@@ -27,7 +27,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 public class GenAIServiceApplication {
 
 	public static void main(String[] args) {
-		System.out.println("Starting VetsServiceApplicationt12342556227");
+		System.out.println("Starting VetsServiceApplicationt123425256227");
 		SpringApplication.run(GenAIServiceApplication.class, args);
 	}
 }

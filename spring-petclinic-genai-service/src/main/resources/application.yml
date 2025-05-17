@@ -6,12 +6,16 @@ spring:
   profiles:
     active: production
   config:
-    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/},optional:classpath:/creds.yaml
+    import: optional:configserver:${CONFIG_SERVER_URL:http://config-server.spring-clinic.svc.cluster.local:8888},optional:classpath:/creds.yaml
+    fail-fast: true
+    retry:
+      initial-interval: 1000
+      max-interval: 2000
+      max-attempts: 20
   ai:
     chat:
       client:
         enabled: true
-    # These apply when using spring-ai-azure-openai-spring-boot-starter
     azure:
       openai:
         api-key: ${AZURE_OPENAI_KEY}
@@ -20,14 +24,12 @@ spring:
           options:
             temperature: 0.7
             deployment-name: gpt-4o
-    # These apply when using spring-ai-openai-spring-boot-starter
     openai:
       api-key: ${OPENAI_API_KEY:demo}
       chat:
         options:
             temperature: 0.7
             model: gpt-3.5
-
 
 logging:
   level:
@@ -37,6 +39,7 @@ logging:
           chat:
             client:
               advisor: DEBUG
+
 ---
 spring:
   config:
