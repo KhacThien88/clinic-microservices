@@ -24,7 +24,7 @@ pipeline {
         stage('Test') {
             when {
                 anyOf {
-                    changeset "spring-petclinic-api-gateway/**"
+                    changeset "spring-petclinic-admin-server/**"
                 }
             }
             parallel {
@@ -51,7 +51,7 @@ pipeline {
         stage('Build') {
             when {
                 anyOf {
-                    changeset "spring-petclinic-api-gateway/**"
+                    changeset "spring-petclinic-admin-server/**"
                 }
             }
             steps {
@@ -73,7 +73,7 @@ pipeline {
         stage('Docker Build and Push') {
             when {
                 anyOf {
-                    changeset "spring-petclinic-api-gateway/**"
+                    changeset "spring-petclinic-admin-server/**"
                 }
             }
             steps {
