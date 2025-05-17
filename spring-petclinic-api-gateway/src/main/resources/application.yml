@@ -1,46 +1,44 @@
 spring:
+  main:
+    web-application-type: reactive
   application:
-    name: api-gateway
+    name: genai-service
+  profiles:
+    active: production
   config:
-    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
-  cloud:
-    gateway:
-      default-filters:
-        - name: CircuitBreaker
-          args:
-            name: defaultCircuitBreaker
-            fallbackUri: forward:/fallback
-        - name: Retry
-          args:
-            retries: 1
-            statuses: SERVICE_UNAVAILABLE
-            methods: POST
-      routes:
-        - id: vets-service
-          uri: lb://vets-service
-          predicates:
-            - Path=/api/vet/**
-          filters:
-            - StripPrefix=2
-        - id: visits-service
-          uri: lb://visits-service
-          predicates:
-            - Path=/api/visit/**
-          filters:
-            - StripPrefix=2
-        - id: customers-service
-          uri: lb://customers-service
-          predicates:
-            - Path=/api/customer/**
-          filters:
-            - StripPrefix=2
-        - id: genai-service
-          uri: lb://genai-service
-          predicates:
-            - Path=/api/genai/**
-          filters:
-            - StripPrefix=2
-            - CircuitBreaker=name=genaiCircuitBreaker,fallbackUri=/fallback
+    import: optional:configserver:${CONFIG_SERVER_URL:http://config-server.spring-clinic.svc.cluster.local:8888},optional:classpath:/creds.yaml
+    fail-fast: true
+    retry:
+      initial-interval: 1000
+      max-interval: 2000
+      max-attempts: 20
+  ai:
+    chat:
+      client:
+        enabled: true
+    azure:
+      openai:
+        api-key: ${AZURE_OPENAI_KEY}
+        endpoint: ${AZURE_OPENAI_ENDPOINT}
+        chat:
+          options:
+            temperature: 0.7
+            deployment-name: gpt-4o
+    openai:
+      api-key: ${OPENAI_API_KEY:demo}
+      chat:
+        options:
+            temperature: 0.7
+            model: gpt-3.5
+
+logging:
+  level:
+    org:
+      springframework:
+        ai:
+          chat:
+            client:
+              advisor: DEBUG
 
 ---
 spring:
