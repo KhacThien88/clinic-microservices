@@ -1,4 +1,5 @@
-server.port: 8888
+server:
+  port: 8888
 spring:
   cloud:
     config:
@@ -6,7 +7,5 @@ spring:
         git:
           uri: https://github.com/KhacThien88/config-server-clinic
           default-label: main
-        # Use the File System Backend to avoid git pulling. Enable "native" profile in the Config Server.
-        native:
-          searchLocations: file:///${GIT_REPO}
-
+          search-paths: '{application}'  # Thêm dòng này nếu cần
+          clone-on-start: true  # Thêm dòng này để clone ngay khi khởi động
