@@ -1,0 +1,6 @@
+spring:
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/KhacThien88/config-server-clinic.git
