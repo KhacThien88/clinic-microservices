@@ -1,36 +1,65 @@
-{{- range $key, $value := .Values.services }}
-{{- if $value.enabled }}
+{{- if .Values.services.config.enabled }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ $.Release.Name }}-{{ $key }}
+  name: {{ $.Release.Name }}-config
   namespace: {{ $.Values.global.namespace }}
   labels:
-    app: {{ if eq $key "config" }}config-server{{ else }}{{ $key }}{{ end }}
+    app: config-server
+    component: config-server
 spec:
-  replicas: {{ $value.replicaCount }}
+  replicas: {{ .Values.services.config.replicaCount }}
   strategy:
-    type: {{ $value.strategy.type }}
+    type: {{ .Values.services.config.strategy.type | default "RollingUpdate" }}
     rollingUpdate:
-      maxSurge: {{ $value.strategy.rollingUpdate.maxSurge }}
-      maxUnavailable: {{ $value.strategy.rollingUpdate.maxUnavailable }}
+      maxSurge: {{ .Values.services.config.strategy.rollingUpdate.maxSurge | default "25%" }}
+      maxUnavailable: {{ .Values.services.config.strategy.rollingUpdate.maxUnavailable | default "25%" }}
   selector:
     matchLabels:
-      app: {{ if eq $key "config" }}config-server{{ else }}{{ $key }}{{ end }}
+      app: config-server
   template:
     metadata:
       labels:
-        app: {{ if eq $key "config" }}config-server{{ else }}{{ $key }}{{ end }}
+        app: config-server
+        component: config-server
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
       tolerations: {{ $.Values.global.tolerations | toYaml | nindent 8 }}
       containers:
-        - name: {{ $key }}
-          image: "{{ $value.image.repository }}:{{ $value.image.tag }}"
+        - name: config-server
+          image: "{{ .Values.services.config.image.repository }}:{{ .Values.services.config.image.tag }}"
           imagePullPolicy: {{ $.Values.global.imagePullPolicy }}
           ports:
-            - containerPort: {{ $value.containerPort }}
+            - containerPort: {{ .Values.services.config.containerPort }}
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "kubernetes"
+            - name: SPRING_CLOUD_CONFIG_SERVER_GIT_URI
+              value: {{ .Values.services.config.gitUri | quote }}
+            - name: SPRING_CLOUD_CONFIG_SERVER_GIT_SEARCHPATHS
+              value: "{{ .Values.services.config.searchPaths | default '{application}' }}"
           resources:
-            {{- toYaml $value.resources | nindent 12 }}
-{{- end }}
+            {{- toYaml .Values.services.config.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: {{ .Values.services.config.containerPort }}
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: {{ .Values.services.config.containerPort }}
+            initialDelaySeconds: 60
+            periodSeconds: 5
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: {{ .Values.services.config.containerPort }}
+            failureThreshold: 30
+            periodSeconds: 10
 {{- end }}
