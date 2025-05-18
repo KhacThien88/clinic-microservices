@@ -96,7 +96,7 @@ services:
     replicaCount: 2
     image:
       repository: ktei8htop15122004/clinic-microservices
-      tag: "config-server-9c9f593"
+      tag: "config-server-169c8a6"
     containerPort: 8888
     service:
       type: ClusterIP
