@@ -24,7 +24,7 @@ spec:
         app: config-server
         component: config-server
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/config: {{ toYaml .Values | sha256sum }}  # Đã sửa ở đây
     spec:
       tolerations: {{ $.Values.global.tolerations | toYaml | nindent 8 }}
       containers:
@@ -39,7 +39,7 @@ spec:
             - name: SPRING_CLOUD_CONFIG_SERVER_GIT_URI
               value: {{ .Values.services.config.gitUri | quote }}
             - name: SPRING_CLOUD_CONFIG_SERVER_GIT_SEARCHPATHS
-              value: {{ `{application}` | quote }}  # Đã sửa ở đây
+              value: {{ `{application}` | quote }}
           resources:
             {{- toYaml .Values.services.config.resources | nindent 12 }}
           livenessProbe:

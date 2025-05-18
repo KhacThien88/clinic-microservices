@@ -1,0 +1,16 @@
+{{- if .Values.services.config.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $.Release.Name }}-config
+  namespace: {{ $.Values.global.namespace }}
+data:
+  application.yml: |
+    spring:
+      cloud:
+        config:
+          server:
+            git:
+              uri: {{ .Values.services.config.gitUri | quote }}
+              search-paths: '{application}'
+{{- end }}
