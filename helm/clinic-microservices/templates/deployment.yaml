@@ -39,7 +39,7 @@ spec:
             - name: SPRING_CLOUD_CONFIG_SERVER_GIT_URI
               value: {{ .Values.services.config.gitUri | quote }}
             - name: SPRING_CLOUD_CONFIG_SERVER_GIT_SEARCHPATHS
-              value: "{{ .Values.services.config.searchPaths | default '{application}' }}"
+              value: {{ `{application}` | quote }}  # Đã sửa ở đây
           resources:
             {{- toYaml .Values.services.config.resources | nindent 12 }}
           livenessProbe:
