@@ -1,5 +1,7 @@
 spring:
-  profiles: kubernetes
+  config:
+    activate:
+      on-profile: kubernetes
   cloud:
     config:
       server:
@@ -7,4 +9,4 @@ spring:
           uri: https://github.com/KhacThien88/config-server-clinic
           default-label: main
           search-paths: '{application}'
-          clone-on-start: true
+          clone-on-start: trues
