@@ -95,8 +95,8 @@ services:
     enabled: true
     replicaCount: 2
     image:
-      repository: springcommunity/spring-petclinic-config-server
-      tag: "latest"
+      repository: ktei8htop15122004/clinic-microservices
+      tag: "config-server-fd439a5"
     containerPort: 8888
     service:
       type: ClusterIP
