@@ -1,12 +1,11 @@
 spring:
-  config:
-    activate:
-      on-profile: kubernetes
+  profiles:
+    active: kubernetes
   cloud:
     config:
       server:
         git:
-          uri: "https://github.com/KhacThien88/config-server-clinic.git"
-          default-label: main
-          search-paths: '{application}'
+          uri: https://github.com/KhacThien88/config-server-clinic.git
           clone-on-start: true
+          search-paths: '{application}'
+          default-label: main
