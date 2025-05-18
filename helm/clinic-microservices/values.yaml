@@ -104,8 +104,8 @@ services:
       targetPort: 8888
     resources:
       requests:
-        memory: "100Mi"
-        cpu: "100m"
+        memory: "512Mi"
+        cpu: "500m"
       limits:
         memory: "150Mi"
         cpu: "150m"
