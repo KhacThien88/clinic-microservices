@@ -1,11 +1,10 @@
-server:
-  port: 8888
 spring:
+  profiles: kubernetes
   cloud:
     config:
       server:
         git:
           uri: https://github.com/KhacThien88/config-server-clinic
           default-label: main
-          search-paths: '{application}'  # Thêm dòng này nếu cần
-          clone-on-start: true  # Thêm dòng này để clone ngay khi khởi động
+          search-paths: '{application}'
+          clone-on-start: true
