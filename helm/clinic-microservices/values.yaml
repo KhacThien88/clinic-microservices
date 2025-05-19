@@ -220,7 +220,7 @@ services:
     replicaCount: 2
     image:
       repository: ktei8htop15122004/clinic-microservices
-      tag: "genai-service-2910f8c"
+      tag: "genai-service-37edb95"
     containerPort: 8084
     service:
       type: ClusterIP
