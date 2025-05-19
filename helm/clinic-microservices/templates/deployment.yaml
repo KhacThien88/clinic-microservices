@@ -4,7 +4,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ $.Release.Name }}-config
-  namespace: {{ $.Values.global.namespace }}
+  namespace: spring-clinic  # Cố định namespace cho config-server
   labels:
     app: config-server
     component: config-server
@@ -52,7 +52,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ $.Release.Name }}-{{ $key }}
-  namespace: {{ $.Values.global.namespace }}
+  namespace: {{ $.Values.global.namespace }}  # Các dịch vụ khác dùng global.namespace
   labels:
     app: {{ $key }}
     component: {{ $key }}
