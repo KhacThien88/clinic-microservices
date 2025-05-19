@@ -42,24 +42,4 @@ spec:
               value: {{ `{application}` | quote }}
           resources:
             {{- toYaml .Values.services.config.resources | nindent 12 }}
-          livenessProbe:
-            httpGet:
-              path: /actuator/health
-              port: {{ .Values.services.config.containerPort }}
-            initialDelaySeconds: 120
-            periodSeconds: 10
-            failureThreshold: 3
-          readinessProbe:
-            httpGet:
-              path: /actuator/health
-              port: {{ .Values.services.config.containerPort }}
-            initialDelaySeconds: 60
-            periodSeconds: 5
-            failureThreshold: 3
-          startupProbe:
-            httpGet:
-              path: /actuator/health
-              port: {{ .Values.services.config.containerPort }}
-            failureThreshold: 30
-            periodSeconds: 10
 {{- end }}
