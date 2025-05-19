@@ -25,14 +25,15 @@ services:
         memory: "250Mi"
         cpu: "250m"
   config:
+    gitUri: https://github.com/KhacThien88/config-server-clinic.git
     replicaCount: 1
     resources:
       requests:
-        memory: "100Mi"
-        cpu: "100m"
+        memory: "512Mi"
+        cpu: "500m"
       limits:
-        memory: "150Mi"
-        cpu: "150m"
+        memory: "512Mi"
+        cpu: "500m"
   customer:
     replicaCount: 1
     resources:
