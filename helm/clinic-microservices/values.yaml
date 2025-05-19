@@ -92,6 +92,7 @@ services:
               averageUtilization: 70
 
   config:
+    gitUri: https://github.com/KhacThien88/config-server-clinic.git
     enabled: true
     replicaCount: 2
     image:
