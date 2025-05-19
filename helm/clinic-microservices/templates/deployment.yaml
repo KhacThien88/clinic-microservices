@@ -1,45 +1,47 @@
-{{- if .Values.services.config.enabled }}
+{{- range $key, $value := .Values.services }}
+{{- if $value.enabled }}
+{{- if ne $key "config" }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ $.Release.Name }}-config
+  name: {{ $.Release.Name }}-{{ $key }}
   namespace: {{ $.Values.global.namespace }}
   labels:
-    app: config-server
-    component: config-server
+    app: {{ $key }}
+    component: {{ $key }}
 spec:
-  replicas: {{ .Values.services.config.replicaCount }}
+  replicas: {{ $value.replicaCount }}
   strategy:
-    type: {{ .Values.services.config.strategy.type | default "RollingUpdate" }}
+    type: {{ $value.strategy.type | default "RollingUpdate" }}
     rollingUpdate:
-      maxSurge: {{ .Values.services.config.strategy.rollingUpdate.maxSurge | default "25%" }}
-      maxUnavailable: {{ .Values.services.config.strategy.rollingUpdate.maxUnavailable | default "25%" }}
+      maxSurge: {{ $value.strategy.rollingUpdate.maxSurge | default "25%" }}
+      maxUnavailable: {{ $value.strategy.rollingUpdate.maxUnavailable | default "25%" }}
   selector:
     matchLabels:
-      app: config-server
+      app: {{ $key }}
   template:
     metadata:
       labels:
-        app: config-server
-        component: config-server
+        app: {{ $key }}
+        component: {{ $key }}
       annotations:
-        checksum/config: {{ toYaml .Values | sha256sum }}  # Đã sửa ở đây
+        checksum/config: {{ toYaml $.Values | sha256sum }}
     spec:
       tolerations: {{ $.Values.global.tolerations | toYaml | nindent 8 }}
       containers:
-        - name: config-server
-          image: "{{ .Values.services.config.image.repository }}:{{ .Values.services.config.image.tag }}"
+        - name: {{ $key }}
+          image: "{{ $value.image.repository }}:{{ $value.image.tag }}"
           imagePullPolicy: {{ $.Values.global.imagePullPolicy }}
           ports:
-            - containerPort: {{ .Values.services.config.containerPort }}
+            - containerPort: {{ $value.containerPort }}
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: "kubernetes"
-            - name: SPRING_CLOUD_CONFIG_SERVER_GIT_URI
-              value: {{ .Values.services.config.gitUri | quote }}
-            - name: SPRING_CLOUD_CONFIG_SERVER_GIT_SEARCHPATHS
-              value: {{ `{application}` | quote }}
+            - name: SPRING_CLOUD_CONFIG_SERVER_URI
+              value: {{ $.Values.global.configServer.url | quote }}
           resources:
-            {{- toYaml .Values.services.config.resources | nindent 12 }}
+            {{- toYaml $value.resources | nindent 12 }}
+{{- end }}
+{{- end }}
 {{- end }}
