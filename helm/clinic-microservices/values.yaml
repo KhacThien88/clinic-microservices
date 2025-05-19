@@ -105,11 +105,11 @@ services:
       targetPort: 8888
     resources:
       requests:
-        memory: "512Mi"
-        cpu: "500m"
+        memory: "256Mi"
+        cpu: "250m"
       limits:
-        memory: "512Mi"
-        cpu: "500m"
+        memory: "256Mi"
+        cpu: "250m"
     strategy:
       type: RollingUpdate
       rollingUpdate:
