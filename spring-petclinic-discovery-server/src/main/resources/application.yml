@@ -1,6 +1,8 @@
+server:
+  port: 8761
 spring:
   application:
-    name: discovery-server
+    name: clinic-staging-discovery
   config:
     import: optional:configserver:${CONFIG_SERVER_URL:http://config-server.spring-clinic.svc.cluster.local:8888}
     fail-fast: true
@@ -8,24 +10,23 @@ spring:
       initial-interval: 1000
       max-interval: 2000
       max-attempts: 20
-
 eureka:
   client:
     register-with-eureka: false
     fetch-registry: false
     serviceUrl:
-      defaultZone: http://${EUREKA_SERVER_HOST:clinic-staging-discovery.spring-clinic.svc.cluster.local}:${EUREKA_SERVER_PORT:8761}/eureka/
-
-logging:
-  level:
-    org:
-      springframework:
-        boot: INFO
-        web: INFO
-
+      defaultZone: http://clinic-staging-discovery.spring-clinic-staging.svc.cluster.local:8761/eureka/
+  server:
+    enable-self-preservation: false
+---
+spring:
+  config:
+    activate:
+      on-profile: kubernetes
+    import: configserver:http://config-server.spring-clinic.svc.cluster.local:8888
 ---
 spring:
   config:
     activate:
       on-profile: docker
-    import: configserver:http://config-server:8888
+    import: configserver:http://config-server.spring-clinic.svc.cluster.local:8888
