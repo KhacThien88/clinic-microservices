@@ -2,7 +2,7 @@ spring:
   application:
     name: clinic-staging-apigateway
   config:
-    import: optional:configserver:${CONFIG_SERVER_URL:http://clinic-staging-config-server.spring-clinic-staging.svc.cluster.local:8888}
+    import: optional:configserver:${CONFIG_SERVER_URL:http://config-server.spring-clinic-staging.svc.cluster.local:8888}
     fail-fast: true
     retry:
       initial-interval: 1000
@@ -57,10 +57,10 @@ spring:
   config:
     activate:
       on-profile: kubernetes
-    import: configserver:http://clinic-staging-config-server:8888
+    import: configserver:http://config-server:8888
 ---
 spring:
   config:
     activate:
       on-profile: docker
-    import: configserver:http://clinic-staging-config-server:8888
+    import: configserver:http://config-server:8888
