@@ -179,7 +179,7 @@ services:
     replicaCount: 2
     image:
       repository: ktei8htop15122004/clinic-microservices
-      tag: "discovery-server-3eb2904"
+      tag: "discovery-server-7c94cf2"
     containerPort: 8761
     service:
       type: ClusterIP
