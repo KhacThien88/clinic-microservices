@@ -42,7 +42,7 @@ services:
         cpu: "256m"
       limits:
         memory: "256Mi"
-        cpu: "250m"
+        cpu: "256m"
   discovery:
     replicaCount: 1
     resources:
