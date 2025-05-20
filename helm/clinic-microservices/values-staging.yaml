@@ -97,4 +97,4 @@ ingress:
               service:
                 name: clinic-staging-apigateway
                 port:
-                  number: 80
+                  number: 8080
