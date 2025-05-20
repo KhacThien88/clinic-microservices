@@ -10,11 +10,11 @@ services:
     replicaCount: 1
     resources:
       requests:
-        memory: "100Mi"
-        cpu: "100m"
+        memory: "256Mi"
+        cpu: "256m"
       limits:
-        memory: "150Mi"
-        cpu: "150m"
+        memory: "256Mi"
+        cpu: "256m"
   apigateway:
     replicaCount: 1
     resources:
@@ -38,47 +38,47 @@ services:
     replicaCount: 1
     resources:
       requests:
-        memory: "100Mi"
-        cpu: "100m"
+        memory: "256Mi"
+        cpu: "256m"
       limits:
-        memory: "150Mi"
-        cpu: "150m"
+        memory: "256Mi"
+        cpu: "250m"
   discovery:
     replicaCount: 1
     resources:
       requests:
-        memory: "100Mi"
-        cpu: "100m"
+        memory: "256Mi"
+        cpu: "256m"
       limits:
-        memory: "150Mi"
-        cpu: "150m"
+        memory: "256Mi"
+        cpu: "256m"
   genai:
     replicaCount: 1
     resources:
       requests:
-        memory: "100Mi"
-        cpu: "150m"
+        memory: "256Mi"
+        cpu: "256m"
       limits:
-        memory: "150Mi"
-        cpu: "150m"
+        memory: "256Mi"
+        cpu: "256m"
   vets:
     replicaCount: 1
     resources:
       requests:
-        memory: "100Mi"
-        cpu: "100m"
+        memory: "256Mi"
+        cpu: "256m"
       limits:
-        memory: "150Mi"
-        cpu: "150m"
+        memory: "256Mi"
+        cpu: "256m"
   visits:
     replicaCount: 1
     resources:
       requests:
-        memory: "100Mi"
-        cpu: "100m"
+        memory: "256Mi"
+        cpu: "256m"
       limits:
-        memory: "150Mi"
-        cpu: "150m"
+        memory: "256Mi"
+        cpu: "256m"
 spec:
   tolerations:
     - key: "node-role.kubernetes.io/control-plane"
