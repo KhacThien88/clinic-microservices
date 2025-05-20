@@ -14,7 +14,7 @@ eureka:
     register-with-eureka: false
     fetch-registry: false
     serviceUrl:
-      defaultZone: http://${EUREKA_SERVER_HOST:discovery-server.spring-clinic.svc.cluster.local}:${EUREKA_SERVER_PORT:8761}/eureka/
+      defaultZone: http://${EUREKA_SERVER_HOST:clinic-staging-discovery.spring-clinic.svc.cluster.local}:${EUREKA_SERVER_PORT:8761}/eureka/
 
 logging:
   level:
