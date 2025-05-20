@@ -4,7 +4,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ $.Release.Name }}-config
-  namespace: spring-clinic  # Cố định namespace cho config-server
+  namespace: spring-clinic
   labels:
     app: config-server
     component: config-server

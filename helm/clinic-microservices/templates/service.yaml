@@ -4,17 +4,17 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ $.Release.Name }}-{{ $key }}
+  name: {{ if eq $key "config" }}config-server{{ else }}{{ $.Release.Name }}-{{ $key }}{{ end }}
   namespace: {{ if eq $key "config" }}spring-clinic{{ else }}{{ $.Values.global.namespace }}{{ end }}
   labels:
-    app: {{ $key }}
+    app: {{ if eq $key "config" }}config-server{{ else }}{{ $key }}{{ end }}
 spec:
   selector:
-    app: {{ $key }}
+    app: {{ if eq $key "config" }}config-server{{ else }}{{ $key }}{{ end }}
   ports:
-    - protocol: TCP
-      port: {{ $value.service.port }}
-      targetPort: {{ $value.service.targetPort }}
+  - protocol: TCP
+    port: {{ $value.service.port }}
+    targetPort: {{ $value.service.targetPort }}
   type: {{ $value.service.type }}
 {{- end }}
 {{- end }}
