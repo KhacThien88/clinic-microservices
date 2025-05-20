@@ -1,8 +1,6 @@
-server:
-  port: 8080
 spring:
   application:
-    name: clinic-staging-apigateway
+    name: api-gateway
   config:
     import: optional:configserver:${CONFIG_SERVER_URL:http://config-server.spring-clinic-staging.svc.cluster.local:8888}
     fail-fast: true
