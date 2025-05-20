@@ -21,26 +21,26 @@ spring:
             statuses: SERVICE_UNAVAILABLE
             methods: POST
       routes:
-        - id: vets-service
-          uri: lb://vets-service.spring-clinic.svc.cluster.local
+        - id: clinic-staging-vets
+          uri: lb://clinic-staging-vets.spring-clinic-staging.svc.cluster.local
           predicates:
             - Path=/api/vet/**
           filters:
             - StripPrefix=2
-        - id: visits-service
-          uri: lb://visits-service.spring-clinic.svc.cluster.local
+        - id: clinic-staging-visits
+          uri: lb://clinic-staging-visits.spring-clinic-staging.svc.cluster.local
           predicates:
             - Path=/api/visit/**
           filters:
             - StripPrefix=2
-        - id: customers-service
-          uri: lb://customers-service.spring-clinic.svc.cluster.local
+        - id: clinic-staging-customer
+          uri: lb://clinic-staging-customer.spring-clinic-staging.svc.cluster.local
           predicates:
             - Path=/api/customer/**
           filters:
             - StripPrefix=2
-        - id: genai-service
-          uri: lb://genai-service.spring-clinic.svc.cluster.local
+        - id: clinic-staging-genai
+          uri: lb://clinic-staging-genai.spring-clinic-staging.svc.cluster.local
           predicates:
             - Path=/api/genai/**
           filters:
