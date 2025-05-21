@@ -79,6 +79,15 @@ services:
       limits:
         memory: "256Mi"
         cpu: "256m"
+  zipkin:
+    replicaCount: 1
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "256m"
+      limits:
+        memory: "256Mi"
+        cpu: "256m"
 spec:
   tolerations:
     - key: "node-role.kubernetes.io/control-plane"
