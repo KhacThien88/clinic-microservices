@@ -19,7 +19,7 @@ spring:
           - customers-service.spring-clinic.svc.cluster.local
           - api-gateway.spring-clinic.svc.cluster.local
           - genai-service.spring-clinic.svc.cluster.local
-
+  
 management:
   endpoints:
     web:
@@ -30,7 +30,13 @@ management:
       show-details: always
     info:
       enabled: true
-
+      
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://clinic-staging-discovery.spring-clinic-staging.svc.cluster.local:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
 ---
 spring:
   config:
