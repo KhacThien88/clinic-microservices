@@ -11,13 +11,17 @@ spring:
       max-interval: 2000
       max-attempts: 20
 eureka:
+  instance:
+    hostname: clinic-staging-discovery.spring-petclinic-staging.svc.cluster.local
   client:
-    register-with-eureka: false
-    fetch-registry: false
+    registerWithEureka: false
+    fetchRegistry: false
     serviceUrl:
       defaultZone: http://clinic-staging-discovery.spring-clinic-staging.svc.cluster.local:8761/eureka/
   server:
-    enable-self-preservation: false
+    enableSelfPreservation: true
+    peerNodeReadTimeoutMs: 10000
+    peerEurekaNodesUpdateIntervalMs: 60000
 ---
 spring:
   config:
