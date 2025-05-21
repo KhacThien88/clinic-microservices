@@ -11,7 +11,12 @@ logging:
       springframework:
         boot: INFO
         web: INFO
-
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://clinic-staging-discovery.spring-clinic-staging.svc.cluster.local:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
 ---
 spring:
   config:
