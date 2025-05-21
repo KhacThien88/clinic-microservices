@@ -14,7 +14,7 @@ services:
     replicaCount: 1
     image:
       repository: ktei8htop15122004/clinic-microservices
-      tag: "admin-server-77ac09a"
+      tag: "admin-server-b15c163"
     containerPort: 9090
     service:
       type: ClusterIP
