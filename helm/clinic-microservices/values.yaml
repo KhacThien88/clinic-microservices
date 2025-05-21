@@ -11,7 +11,7 @@ global:
 services:
   admin:
     enabled: true
-    replicaCount: 2
+    replicaCount: 1
     image:
       repository: ktei8htop15122004/clinic-microservices
       tag: "admin-server-77ac09a"
@@ -52,7 +52,7 @@ services:
 
   apigateway:
     enabled: true
-    replicaCount: 2
+    replicaCount: 1
     image:
       repository: ktei8htop15122004/clinic-microservices
       tag: "api-gateway-14d9761"
@@ -94,7 +94,7 @@ services:
   config:
     gitUri: https://github.com/KhacThien88/config-server-clinic.git
     enabled: true
-    replicaCount: 2
+    replicaCount: 1
     image:
       repository: ktei8htop15122004/clinic-microservices
       tag: "config-server-169c8a6"
@@ -118,7 +118,7 @@ services:
 
   customer:
     enabled: true
-    replicaCount: 2
+    replicaCount: 1
     image:
       repository: ktei8htop15122004/clinic-microservices
       tag: "customers-service-5f8b125"
@@ -159,7 +159,7 @@ services:
 
   discovery:
     enabled: true
-    replicaCount: 2
+    replicaCount: 1
     image:
       repository: ktei8htop15122004/clinic-microservices
       tag: "discovery-server-e798e73"
@@ -200,7 +200,7 @@ services:
 
   genai:
     enabled: true
-    replicaCount: 2
+    replicaCount: 1
     image:
       repository: ktei8htop15122004/clinic-microservices
       tag: "genai-service-37edb95"
@@ -241,7 +241,7 @@ services:
 
   vets:
     enabled: true
-    replicaCount: 2
+    replicaCount: 1
     image:
       repository: ktei8htop15122004/clinic-microservices
       tag: "vets-service-d125002"
@@ -282,7 +282,7 @@ services:
 
   visits:
     enabled: true
-    replicaCount: 2
+    replicaCount: 1
     image:
       repository: ktei8htop15122004/clinic-microservices
       tag: "visits-service-c634c74"
