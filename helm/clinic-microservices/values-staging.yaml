@@ -47,11 +47,11 @@ services:
     replicaCount: 1
     resources:
       requests:
-        memory: "256Mi"
-        cpu: "256m"
+        memory: "512Mi"
+        cpu: "512m"
       limits:
-        memory: "256Mi"
-        cpu: "256m"
+        memory: "512Mi"
+        cpu: "512m"
   genai:
     replicaCount: 1
     resources:
