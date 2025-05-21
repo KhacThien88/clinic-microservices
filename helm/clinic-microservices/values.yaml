@@ -320,6 +320,44 @@ services:
             target:
               type: Utilization
               averageUtilization: 70
+  zipkin:
+    enabled: true
+    replicaCount: 1
+    image: openzipkin/zipkin
+    containerPort: 8082
+    service:
+      type: ClusterIP
+      port: 8082
+      targetPort: 8082
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "256m"
+      limits:
+        memory: "256Mi"
+        cpu: "256m"
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 50%
+        maxUnavailable: 25%
+    hpa:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 2
+      metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 50
+        - type: Resource
+          resource:
+            name: memory
+            target:
+              type: Utilization
+              averageUtilization: 70
 spec:
   tolerations:
     - key: "node-role.kubernetes.io/control-plane"
