@@ -97,7 +97,7 @@ services:
     replicaCount: 1
     image:
       repository: ktei8htop15122004/clinic-microservices
-      tag: "config-server-169c8a6"
+      tag: "config-server-a57ac53"
     containerPort: 8888
     service:
       type: ClusterIP
@@ -121,7 +121,7 @@ services:
     replicaCount: 1
     image:
       repository: ktei8htop15122004/clinic-microservices
-      tag: "customers-service-5f8b125"
+      tag: "customers-service-008246e"
     containerPort: 8081
     service:
       type: ClusterIP
@@ -203,7 +203,7 @@ services:
     replicaCount: 1
     image:
       repository: ktei8htop15122004/clinic-microservices
-      tag: "genai-service-37edb95"
+      tag: "genai-service-8bbfae3"
     containerPort: 8084
     service:
       type: ClusterIP
@@ -244,7 +244,7 @@ services:
     replicaCount: 1
     image:
       repository: ktei8htop15122004/clinic-microservices
-      tag: "vets-service-d125002"
+      tag: "vets-service-951d802"
     containerPort: 8083
     service:
       type: ClusterIP
@@ -285,7 +285,7 @@ services:
     replicaCount: 1
     image:
       repository: ktei8htop15122004/clinic-microservices
-      tag: "visits-service-c634c74"
+      tag: "visits-service-f84808b"
     containerPort: 8082
     service:
       type: ClusterIP
