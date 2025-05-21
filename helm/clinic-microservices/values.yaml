@@ -323,12 +323,14 @@ services:
   zipkin:
     enabled: true
     replicaCount: 1
-    image: openzipkin/zipkin
-    containerPort: 8082
+    image: 
+      repository: openzipkin/zipkin
+      tag: "latest"
+    containerPort: 9411
     service:
       type: ClusterIP
-      port: 8082
-      targetPort: 8082
+      port: 9411
+      targetPort: 9411
     resources:
       requests:
         memory: "256Mi"
