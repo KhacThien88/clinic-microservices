@@ -46,6 +46,12 @@ spring:
           filters:
             - StripPrefix=2
             - CircuitBreaker=name=genaiCircuitBreaker,fallbackUri=/fallback
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://clinic-staging-discovery.spring-clinic-staging.svc.cluster.local:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
 
 ---
 spring:
