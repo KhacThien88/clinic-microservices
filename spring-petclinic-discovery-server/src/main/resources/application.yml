@@ -15,6 +15,10 @@ eureka:
     fetch-registry: false
     serviceUrl:
       defaultZone: http://${EUREKA_SERVER_HOST:discovery-server.spring-clinic.svc.cluster.local}:${EUREKA_SERVER_PORT:8761}/eureka/
+  server:
+    enable-self-preservation: true
+    renewal-percent-threshold: 0.85
+    peer-node-read-timeout-ms: 10000
 
 logging:
   level:
