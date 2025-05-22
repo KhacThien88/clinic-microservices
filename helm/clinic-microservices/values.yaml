@@ -48,7 +48,7 @@ services:
             name: memory
             target:
               type: Utilization
-              averageUtilization: 70
+              averageUtilization: 90
 
   apigateway:
     enabled: true
@@ -89,7 +89,7 @@ services:
             name: memory
             target:
               type: Utilization
-              averageUtilization: 70
+              averageUtilization: 90
 
   config:
     gitUri: https://github.com/KhacThien88/config-server-clinic.git
@@ -155,7 +155,7 @@ services:
             name: memory
             target:
               type: Utilization
-              averageUtilization: 70
+              averageUtilization: 90
 
   discovery:
     enabled: true
@@ -196,7 +196,7 @@ services:
             name: memory
             target:
               type: Utilization
-              averageUtilization: 70
+              averageUtilization: 90
 
   genai:
     enabled: true
@@ -237,7 +237,7 @@ services:
             name: memory
             target:
               type: Utilization
-              averageUtilization: 70
+              averageUtilization: 90
 
   vets:
     enabled: true
@@ -278,7 +278,7 @@ services:
             name: memory
             target:
               type: Utilization
-              averageUtilization: 70
+              averageUtilization: 90
 
   visits:
     enabled: true
@@ -319,7 +319,7 @@ services:
             name: memory
             target:
               type: Utilization
-              averageUtilization: 70
+              averageUtilization: 90
   
 spec:
   tolerations:
