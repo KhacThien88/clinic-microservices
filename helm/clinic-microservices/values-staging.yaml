@@ -29,10 +29,10 @@ services:
     replicaCount: 1
     resources:
       requests:
-        memory: "256Mi"
+        memory: "512Mi"
         cpu: "250m"
       limits:
-        memory: "256Mi"
+        memory: "512Mi"
         cpu: "250m"
   customer:
     replicaCount: 1
@@ -65,19 +65,19 @@ services:
     replicaCount: 1
     resources:
       requests:
-        memory: "256Mi"
+        memory: "512Mi"
         cpu: "256m"
       limits:
-        memory: "256Mi"
+        memory: "512Mi"
         cpu: "256m"
   visits:
     replicaCount: 1
     resources:
       requests:
-        memory: "256Mi"
+        memory: "512Mi"
         cpu: "256m"
       limits:
-        memory: "256Mi"
+        memory: "512Mi"
         cpu: "256m"
 
 spec:
