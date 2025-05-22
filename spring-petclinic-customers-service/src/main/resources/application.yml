@@ -8,6 +8,9 @@ spring:
       initial-interval: 1000
       max-interval: 2000
       max-attempts: 20
+  zipkin:
+    base-url: http://clinic-staging-zipkin.spring-clinic-staging.svc.cluster.local:9411
+    enabled: true
       
 eureka:
   client:
@@ -15,9 +18,7 @@ eureka:
       defaultZone: http://clinic-staging-discovery.spring-clinic-staging.svc.cluster.local:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
-  zipkin:
-    base-url: http://clinic-staging-zipkin.spring-clinic-staging.svc.cluster.local:9411
-    enabled: true
+  
 ---
 spring:
   config:
