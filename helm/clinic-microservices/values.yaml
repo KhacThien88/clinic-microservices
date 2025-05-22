@@ -22,10 +22,10 @@ services:
       targetPort: 9090
     resources:
       requests:
-        memory: "256Mi"
+        memory: "512Mi"
         cpu: "256m"
       limits:
-        memory: "256Mi"
+        memory: "512Mi"
         cpu: "256m"
     strategy:
       type: RollingUpdate
@@ -63,11 +63,11 @@ services:
       targetPort: 8080
     resources:
       requests:
-        memory: "256Mi"
-        cpu: "256m"
+        memory: "512Mi"
+        cpu: "512m"
       limits:
-        memory: "256Mi"
-        cpu: "256m"
+        memory: "512Mi"
+        cpu: "512m"
     strategy:
       type: RollingUpdate
       rollingUpdate:
@@ -106,10 +106,10 @@ services:
     resources:
       requests:
         memory: "512Mi"
-        cpu: "250m"
+        cpu: "512m"
       limits:
         memory: "512Mi"
-        cpu: "250m"
+        cpu: "512m"
     strategy:
       type: RollingUpdate
       rollingUpdate:
@@ -130,10 +130,10 @@ services:
     resources:
       requests:
         memory: "512Mi"
-        cpu: "256m"
+        cpu: "512m"
       limits:
         memory: "512Mi"
-        cpu: "256m"
+        cpu: "512m"
     strategy:
       type: RollingUpdate
       rollingUpdate:
@@ -253,10 +253,10 @@ services:
     resources:
       requests:
         memory: "512Mi"
-        cpu: "256m"
+        cpu: "512m"
       limits:
         memory: "512Mi"
-        cpu: "256m"
+        cpu: "512m"
     strategy:
       type: RollingUpdate
       rollingUpdate:
@@ -294,10 +294,10 @@ services:
     resources:
       requests:
         memory: "512Mi"
-        cpu: "256m"
+        cpu: "512m"
       limits:
         memory: "512Mi"
-        cpu: "256m"
+        cpu: "512m"
     strategy:
       type: RollingUpdate
       rollingUpdate:
