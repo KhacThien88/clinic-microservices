@@ -80,6 +80,8 @@ services:
         memory: "256Mi"
         cpu: "256m"
   zipkin:
+    baseUrl: "http://clinic-staging-zipkin.spring-clinic-staging.svc.cluster.local:9411/"
+    enabled: true
     replicaCount: 1
     resources:
       requests:
