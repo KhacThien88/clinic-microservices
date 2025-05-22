@@ -15,32 +15,55 @@ spring:
           args:
             name: defaultCircuitBreaker
             fallbackUri: forward:/fallback
+            statusCodes: 500,503,504
         - name: Retry
           args:
-            retries: 1
-            statuses: SERVICE_UNAVAILABLE
-            methods: POST
+            retries: 3
+            statuses: SERVICE_UNAVAILABLE,INTERNAL_SERVER_ERROR
+            methods: GET,POST
+            backoff:
+              firstBackoff: 1000ms
+              maxBackoff: 5000ms
+              factor: 2
+              basedOnPreviousValue: false
       routes:
         - id: vets-service
-          uri: http://clinic-staging-vets.spring-clinic-staging.svc.cluster.local:8083
+          uri: lb://vets-service
           predicates:
             - Path=/api/vet/**
           filters:
             - StripPrefix=2
+            - name: Retry
+              args:
+                retries: 3
+                statuses: SERVICE_UNAVAILABLE
+                methods: GET,POST
         - id: visits-service
-          uri: http://clinic-staging-visits.spring-clinic-staging.svc.cluster.local:8082
+          uri: lb://visits-service
           predicates:
             - Path=/api/visit/**
           filters:
             - StripPrefix=2
         - id: customers-service
-          uri: http://clinic-staging-customer.spring-clinic-staging.svc.cluster.local:8081
+          uri: lb://customers-service
           predicates:
             - Path=/api/customer/**
           filters:
             - StripPrefix=2
+            - name: CircuitBreaker
+              args:
+                name: customersCircuitBreaker
+                fallbackUri: forward:/customers-fallback
+                statusCodes: 503,500
+            - name: Retry
+              args:
+                retries: 3
+                statuses: SERVICE_UNAVAILABLE
+                methods: GET,POST
+                exceptions:
+                  - org.springframework.web.server.ResponseStatusException
         - id: genai-service
-          uri: http://clinic-staging-genai.spring-clinic-staging.svc.cluster.local:8084
+          uri: lb://genai-service
           predicates:
             - Path=/api/genai/**
           filters:
@@ -51,6 +74,37 @@ spring:
       defaultZone: http://clinic-staging-discovery.spring-clinic-staging.svc.cluster.local:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
+    healthcheck:
+      enabled: true
+  http:
+    connection:
+      timeout: 5000
+    read:
+      timeout: 5000
+    write:
+      timeout: 5000
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+    circuitbreakers:
+      enabled: true
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.retry: DEBUG
+    org.springframework.cloud.circuitbreaker: DEBUG
+
 ---
 spring:
   config:
