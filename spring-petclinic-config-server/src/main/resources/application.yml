@@ -1,4 +1,7 @@
 spring:
+  zipkin:
+    base-url: http://clinic-staging-zipkin.spring-clinic-staging.svc.cluster.local:9411
+    enabled: true
   profiles:
     active: kubernetes
   cloud:
