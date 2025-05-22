@@ -13,8 +13,4 @@ data:
             git:
               uri: {{ .Values.services.config.gitUri | quote }}
               search-paths: '{application}'
-      zipkin:
-        baseUrl: {{ .Values.services.zipkin.baseUrl | quote }}
-      sleuth:
-        enabled: true
 {{- end }}
