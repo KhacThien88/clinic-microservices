@@ -48,7 +48,7 @@ services:
     replicaCount: 1
     image:
       repository: ktei8htop15122004/clinic-microservices
-      tag: "api-gateway-8c42434"
+      tag: "api-gateway-292003f"
     containerPort: 8080
     service:
       type: ClusterIP
