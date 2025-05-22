@@ -8,77 +8,22 @@ global:
 services:
   admin:
     replicaCount: 1
-    resources:
-      requests:
-        memory: "256Mi"
-        cpu: "256m"
-      limits:
-        memory: "256Mi"
-        cpu: "256m"
   apigateway:
     replicaCount: 1
-    resources:
-      requests:
-        memory: "200Mi"
-        cpu: "200m"
-      limits:
-        memory: "250Mi"
-        cpu: "250m"
   config:
     gitUri: https://github.com/KhacThien88/config-server-clinic.git
     replicaCount: 1
-    resources:
-      requests:
-        memory: "512Mi"
-        cpu: "250m"
-      limits:
-        memory: "512Mi"
-        cpu: "250m"
   customer:
     replicaCount: 1
-    resources:
-      requests:
-        memory: "512Mi"
-        cpu: "256m"
-      limits:
-        memory: "512Mi"
-        cpu: "256m"
   discovery:
     replicaCount: 1
-    resources:
-      requests:
-        memory: "512Mi"
-        cpu: "512m"
-      limits:
-        memory: "512Mi"
-        cpu: "512m"
   genai:
     replicaCount: 1
-    resources:
-      requests:
-        memory: "256Mi"
-        cpu: "256m"
-      limits:
-        memory: "256Mi"
-        cpu: "256m"
   vets:
     replicaCount: 1
-    resources:
-      requests:
-        memory: "512Mi"
-        cpu: "256m"
-      limits:
-        memory: "512Mi"
-        cpu: "256m"
   visits:
     replicaCount: 1
-    resources:
-      requests:
-        memory: "512Mi"
-        cpu: "256m"
-      limits:
-        memory: "512Mi"
-        cpu: "256m"
+
 
 spec:
   tolerations:
