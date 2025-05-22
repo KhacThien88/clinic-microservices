@@ -1,3 +1,4 @@
+appName: spring-clinic
 configMap:
   apiGateway:
     create: true
