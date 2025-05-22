@@ -3,7 +3,9 @@ spring:
     name: customers-service
   config:
     import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
-
+  zipkin:
+    base-url: http://clinic-staging-zipkin.spring-clinic-staging.svc.cluster.local:9411
+    enabled: true
 
 ---
 spring:
