@@ -129,10 +129,10 @@ services:
       targetPort: 8081
     resources:
       requests:
-        memory: "256Mi"
-        cpu: "255m"
+        memory: "512Mi"
+        cpu: "256m"
       limits:
-        memory: "256Mi"
+        memory: "512Mi"
         cpu: "256m"
     strategy:
       type: RollingUpdate
@@ -334,11 +334,11 @@ services:
       targetPort: 9411
     resources:
       requests:
-        memory: "256Mi"
-        cpu: "256m"
+        memory: "128Mi"
+        cpu: "128m"
       limits:
-        memory: "256Mi"
-        cpu: "256m"
+        memory: "128Mi"
+        cpu: "128m"
     strategy:
       type: RollingUpdate
       rollingUpdate:

@@ -38,10 +38,10 @@ services:
     replicaCount: 1
     resources:
       requests:
-        memory: "256Mi"
+        memory: "512i"
         cpu: "256m"
       limits:
-        memory: "256Mi"
+        memory: "512Mi"
         cpu: "256m"
   discovery:
     replicaCount: 1
