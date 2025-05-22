@@ -121,7 +121,7 @@ services:
     replicaCount: 1
     image:
       repository: ktei8htop15122004/clinic-microservices
-      tag: "customers-service-c8c790d"
+      tag: "customers-service-bbcd1df"
     containerPort: 8081
     service:
       type: ClusterIP
