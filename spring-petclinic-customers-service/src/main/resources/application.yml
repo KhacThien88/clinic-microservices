@@ -17,6 +17,7 @@ eureka:
     fetch-registry: true
   zipkin:
     base-url: http://clinic-staging-zipkin.spring-clinic-staging.svc.cluster.local:9411
+    enabled: true
 ---
 spring:
   config:
