@@ -1,8 +1,3 @@
-appName: spring-clinic
-configMap:
-  apiGateway:
-    create: true
-  name: petclinic-api-gateway-application-properties-configmap
 global:
   namespace: spring-clinic
   imagePullPolicy: IfNotPresent
@@ -52,8 +47,8 @@ services:
     enabled: true
     replicaCount: 1
     image:
-      repository: thuanlp/spring-petclinic-api-gateway
-      tag: "latest"
+      repository: ktei8htop15122004/clinic-microservices
+      tag: "api-gateway-292003f"
     containerPort: 8080
     service:
       type: ClusterIP
