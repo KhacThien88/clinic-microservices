@@ -321,6 +321,7 @@ services:
               type: Utilization
               averageUtilization: 70
   zipkin:
+    baseUrl: "http://clinic-staging-zipkin.spring-clinic-staging.svc.cluster.local:9411/"
     enabled: true
     replicaCount: 1
     image: 

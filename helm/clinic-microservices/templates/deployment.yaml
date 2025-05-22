@@ -86,6 +86,8 @@ spec:
               value: "kubernetes"
             - name: SPRING_CLOUD_CONFIG_SERVER_URI
               value: {{ $.Values.global.configServer.url | quote }}
+            - name: SPRING_ZIPKIN_BASEURL
+              value: {{ .Values.services.zipkin.baseUrl | quote }}
           resources:
             {{- toYaml $value.resources | nindent 12 }}
 {{- end }}
