@@ -40,6 +40,8 @@ spec:
               value: {{ .Values.services.config.gitUri | quote }}
             - name: SPRING_CLOUD_CONFIG_SERVER_GIT_SEARCHPATHS
               value: {{ `{application}` | quote }}
+            - name: EUREKA_INSTANCE_HOSTNAME
+              value: {{ if eq $key "config" }}config-server{{ else }}{{ $.Release.Name }}-{{ $key }}{{ end }}.{{ $.Values.global.namespace }}.svc.cluster.local
           resources:
             {{- toYaml .Values.services.config.resources | nindent 12 }}
 {{- end }}
