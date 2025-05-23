@@ -4,7 +4,7 @@ spring:
   application:
     name: clinic-staging-discovery
   config:
-    import: optional:configserver:${CONFIG_SERVER_URL:http://config-server.spring-clinic.svc.cluster.local:8888}
+    import: optional:configserver:${CONFIG_SERVER_URL:http://config-server.spring-clinic-staging.svc.cluster.local:8888}
     fail-fast: true
     retry:
       initial-interval: 1000
@@ -12,7 +12,8 @@ spring:
       max-attempts: 20
 eureka:
   instance:
-    hostname: clinic-staging-discovery.spring-petclinic-staging.svc.cluster.local
+    hostname: clinic-staging-discovery.spring-clinic-staging.svc.cluster.local
+    nonSecurePort: 8761
   client:
     registerWithEureka: false
     fetchRegistry: false
@@ -20,6 +21,7 @@ eureka:
       defaultZone: http://clinic-staging-discovery.spring-clinic-staging.svc.cluster.local:8761/eureka/
   server:
     enableSelfPreservation: true
+    enable-replicated: false
     peerNodeReadTimeoutMs: 10000
     peerEurekaNodesUpdateIntervalMs: 60000
 ---
@@ -27,10 +29,10 @@ spring:
   config:
     activate:
       on-profile: kubernetes
-    import: configserver:http://config-server.spring-clinic.svc.cluster.local:8888
+    import: configserver:http://config-server.spring-clinic-staging.svc.cluster.local:8888
 ---
 spring:
   config:
     activate:
       on-profile: docker
-    import: configserver:http://config-server.spring-clinic.svc.cluster.local:8888
+    import: configserver:http://config-server.spring-clinic-staging.svc.cluster.local:8888
