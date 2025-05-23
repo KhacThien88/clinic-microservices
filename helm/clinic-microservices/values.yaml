@@ -49,7 +49,7 @@ services:
     containerName: api-gateway
     image:
       repository: ktei8htop15122004/clinic-microservices
-      tag: "api-gateway-292003f"
+      tag: "api-gateway-8c42434"
     containerPort: 8080
     service:
       type: ClusterIP
