@@ -32,5 +32,8 @@ spec:
             - containerPort: {{ $value.containerPort }}
           resources:
             {{- toYaml $value.resources | nindent 12 }}
+          env:
+            - name: EUREKA_INSTANCE_HOSTNAME
+              value: {{ if eq $key "config" }}config-server{{ else }}{{ $.Release.Name }}-{{ $key }}{{ end }}.{{ $.Values.global.namespace }}.svc.cluster.local
 {{- end }}
 {{- end }}
