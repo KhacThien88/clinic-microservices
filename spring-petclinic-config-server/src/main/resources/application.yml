@@ -8,6 +8,6 @@ spring:
     config:
       server:
         git:
-          uri: https://github.com/spring-petclinic/spring-petclinic-microservices-config
+          uri: https://github.com/KhacThien88/config-server-clinic
           clone-on-start: true
           default-label: main
