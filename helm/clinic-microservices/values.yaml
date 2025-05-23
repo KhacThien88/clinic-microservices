@@ -46,6 +46,7 @@ services:
   apigateway:
     enabled: true
     replicaCount: 1
+    containerName: api-gateway
     image:
       repository: ktei8htop15122004/clinic-microservices
       tag: "api-gateway-292003f"
@@ -83,7 +84,7 @@ services:
     replicaCount: 1
     image:
       repository: ktei8htop15122004/clinic-microservices
-      tag: "config-server-b30653a"
+      tag: "config-server-e6de30b"
     containerPort: 8888
     service:
       type: ClusterIP
