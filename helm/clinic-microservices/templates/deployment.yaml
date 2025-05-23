@@ -41,7 +41,7 @@ spec:
             - name: SPRING_CLOUD_CONFIG_SERVER_GIT_SEARCHPATHS
               value: {{ `{application}` | quote }}
             - name: EUREKA_INSTANCE_HOSTNAME
-              value: {{ if eq $key "config" }}config-server{{ else }}{{ $.Release.Name }}-{{ $key }}{{ end }}.{{ $.Values.global.namespace }}.svc.cluster.local
+              value: config-server.spring-clinic.svc.cluster.local
           resources:
             {{- toYaml .Values.services.config.resources | nindent 12 }}
 {{- end }}
@@ -88,6 +88,8 @@ spec:
               value: "kubernetes"
             - name: SPRING_CLOUD_CONFIG_SERVER_URI
               value: {{ $.Values.global.configServer.url | quote }}
+            - name: EUREKA_INSTANCE_HOSTNAME
+              value: {{ if eq $key "config" }}config-server{{ else }}{{ $.Release.Name }}-{{ $key }}{{ end }}.{{ $.Values.global.namespace }}.svc.cluster.local
           resources:
             {{- toYaml $value.resources | nindent 12 }}
 {{- end }}
