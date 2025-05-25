@@ -76,6 +76,7 @@ spring:
     fetch-registry: true
     healthcheck:
       enabled: true
+  
   http:
     connection:
       timeout: 5000
@@ -85,7 +86,9 @@ spring:
       timeout: 5000
   lifecycle:
     timeout-per-shutdown-phase: 30s
-
+eureka:
+  instance:
+    hostname: http://clinic-staging-apigateway.spring-clinic.svc.cluster.local:8080
 management:
   endpoints:
     web:
