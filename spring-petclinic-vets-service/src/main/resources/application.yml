@@ -19,6 +19,8 @@ eureka:
       defaultZone: http://clinic-staging-discovery.spring-clinic-staging.svc.cluster.local:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
+  instance:
+    hostname: clinic-staging-vets.spring-clinic-staging.svc.cluster.local:8083
 ---
 spring:
   config:
