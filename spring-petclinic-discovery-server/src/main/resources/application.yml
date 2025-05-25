@@ -12,7 +12,7 @@ spring:
       max-attempts: 20
 eureka:
   instance:
-    hostname: http://clinic-staging-apigateway.spring-clinic.svc.cluster.local:8761
+    hostname: http://clinic-staging-discovery.spring-clinic.svc.cluster.local:8761
     nonSecurePort: 8761
   client:
     registerWithEureka: false
