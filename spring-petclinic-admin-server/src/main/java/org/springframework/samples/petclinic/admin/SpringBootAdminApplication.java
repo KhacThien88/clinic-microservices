@@ -25,7 +25,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 @EnableDiscoveryClient
 public class SpringBootAdminApplication {
     public static void main(String[] args) {
-        System.out.println("Starting VetsSer2viceApplication652322242243223222222");
+        System.out.println("Starting VetsSer2viceApplication6523222422432232222222");
         SpringApplication.run(SpringBootAdminApplication.class, args);
     }
 
