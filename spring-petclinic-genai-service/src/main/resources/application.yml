@@ -30,7 +30,9 @@ spring:
         options:
             temperature: 0.7
             model: gpt-3.5
-
+eureka:
+  instance:
+    hostname: clinic-staging-customer.spring-clinic-staging.svc.cluster.local:8084
 logging:
   level:
     org:
