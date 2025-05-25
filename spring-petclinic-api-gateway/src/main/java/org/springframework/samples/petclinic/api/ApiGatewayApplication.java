@@ -47,7 +47,7 @@ import java.time.Duration;
 public class ApiGatewayApplication {
 
     public static void main(String[] args) {
-        System.out.println("Starting VetsServiceApplicationt123425562227");
+        System.out.println("Starting VetsServiceApplicationt1234255622227");
         SpringApplication.run(ApiGatewayApplication.class, args);
     }
 
