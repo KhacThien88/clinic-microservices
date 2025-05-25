@@ -68,15 +68,7 @@ spring:
             - Path=/api/genai/**
           filters:
             - StripPrefix=2
-            - CircuitBreaker=name=genaiCircuitBreaker,fallbackUri=/fallback
-  client:
-    serviceUrl:
-      defaultZone: http://clinic-staging-discovery.spring-clinic-staging.svc.cluster.local:8761/eureka/
-    register-with-eureka: true
-    fetch-registry: true
-    healthcheck:
-      enabled: true
-  
+            - CircuitBreaker=name=genaiCircuitBreaker,fallbackUri=/fallback 
   http:
     connection:
       timeout: 5000
@@ -87,6 +79,13 @@ spring:
   lifecycle:
     timeout-per-shutdown-phase: 30s
 eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://clinic-staging-discovery.spring-clinic-staging.svc.cluster.local:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+    healthcheck:
+      enabled: true
   instance:
     hostname: http://clinic-staging-apigateway.spring-clinic.svc.cluster.local:8080
 management:
