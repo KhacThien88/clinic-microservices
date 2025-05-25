@@ -19,7 +19,7 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
   instance:
-    hostname: http://clinic-staging-apigateway.spring-clinic.svc.cluster.local:8761
+    hostname: http://clinic-staging-customer.spring-clinic.svc.cluster.local:8081
   
 ---
 spring:
