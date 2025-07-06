@@ -2,9 +2,25 @@ spring:
   application:
     name: customers-service
   config:
-    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
-
-
+    import: optional:configserver:${CONFIG_SERVER_URL:http://config-server.spring-clinic.svc.cluster.local:8888}
+    fail-fast: true
+    retry:
+      initial-interval: 1000
+      max-interval: 2000
+      max-attempts: 20
+  zipkin:
+    base-url: http://clinic-staging-zipkin.spring-clinic-staging.svc.cluster.local:9411
+    enabled: true
+      
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://clinic-staging-discovery.spring-clinic-staging.svc.cluster.local:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    hostname: http://clinic-staging-customer.spring-clinic.svc.cluster.local:8081
+  
 ---
 spring:
   config:
