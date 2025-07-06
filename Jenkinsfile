@@ -5,6 +5,7 @@ pipeline {
         projectName = 'lab01hcmus'
         GITHUB_CREDENTIALS = credentials('github-account')
     }
+
     stages {
         stage('Initialize') {
             steps {
@@ -22,17 +23,11 @@ pipeline {
                 ])
             }
         }
+
         stage('Test') {
             when {
                 anyOf {
-                    changeset "spring-petclinic-admin-server/**"
-                    changeset "spring-petclinic-customers-service/**"
                     changeset "spring-petclinic-vets-service/**"
-                    changeset "spring-petclinic-visits-service/**"
-                    changeset "spring-petclinic-genai-service/**"
-                    changeset "spring-petclinic-config-server/**"
-                    changeset "spring-petclinic-discovery-server/**"
-                    changeset "spring-petclinic-api-gateway/**"
                 }
             }
             parallel {
@@ -44,6 +39,7 @@ pipeline {
                                 if (changedModule) {
                                     sh """
                                         cd ${changedModule}
+                                        mvn test
                                         mvn test surefire-report:report
                                         echo "Surefire report generated in http://localhost:8080/job/$projectName/$BUILD_ID/execution/node/3/ws/${changedModule}/target/site/surefire-report.html"
                                     """
@@ -73,8 +69,32 @@ pipeline {
                         }
                     }
                 }
+            }
+        }
 
-                stage('Coverage') {
+        stage('Build') {
+            when {
+                anyOf {
+                    changeset "spring-petclinic-vets-service/**"
+                }
+            }
+            steps {
+                script {
+                    def changedModule = sh(script: "git diff --name-only HEAD^ HEAD | grep -o 'spring-petclinic-[a-z-]*' | head -1", returnStdout: true).trim()
+                    if (changedModule) {
+                        sh """
+                            cd ${changedModule}
+                            mvn clean install -DskipTests
+                            echo "Artifact built: ${changedModule}/target/${changedModule}-3.4.1.jar"
+                        """
+                        archiveArtifacts artifacts: "${changedModule}/target/*.jar", allowEmptyArchive: true
+                    } else {
+                        echo "No service module changed for Build."
+                    }
+                }
+            }
+        }
+        stage('Coverage') {
                     steps {
                         timeout(time: 10, unit: 'MINUTES') {
                             script {
@@ -113,34 +133,37 @@ pipeline {
                         }
                     }
                 }
-            }
-        }
-
-        stage('Build') {
+        stage('Docker Build and Push') {
             when {
                 anyOf {
-                    changeset "spring-petclinic-admin-server/**"
-                    changeset "spring-petclinic-customers-service/**"
                     changeset "spring-petclinic-vets-service/**"
-                    changeset "spring-petclinic-visits-service/**"
-                    changeset "spring-petclinic-genai-service/**"
-                    changeset "spring-petclinic-config-server/**"
-                    changeset "spring-petclinic-discovery-server/**"
-                    changeset "spring-petclinic-api-gateway/**"
                 }
             }
             steps {
                 script {
                     def changedModule = sh(script: "git diff --name-only HEAD^ HEAD | grep -o 'spring-petclinic-[a-z-]*' | head -1", returnStdout: true).trim()
                     if (changedModule) {
+                        def commitId = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+                        def serviceName = changedModule.replace('spring-petclinic-', '')
+                        def portMap = [
+                            'vets-service': '8083'
+                        ]
+                        def exposedPort = portMap[serviceName] ?: '8083'
                         sh """
-                            cd ${changedModule}
-                            mvn clean install -DskipTests
-                            echo "Artifact built: ${changedModule}/target/${changedModule}-3.4.1.jar"
+                            # Create a temporary build context
+                            mkdir -p docker/build
+                            cp ${changedModule}/target/${changedModule}-3.4.1.jar docker/build/
+                            cd docker/build
+                            docker build -f ../Dockerfile -t ${DOCKERHUB_REPO}:${serviceName}-${commitId} \
+                                --build-arg ARTIFACT_NAME=${changedModule}-3.4.1 \
+                                --build-arg EXPOSED_PORT=${exposedPort} .
+                            echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin
+                            docker push ${DOCKERHUB_REPO}:${serviceName}-${commitId} || { echo "Failed to push ${DOCKERHUB_REPO}:${serviceName}-${commitId}. Check Docker Hub credentials and repository access."; exit 1; }
+                            # Clean up temporary build context
+                            rm -rf docker/build
                         """
-                        archiveArtifacts artifacts: "${changedModule}/target/*.jar", allowEmptyArchive: true
                     } else {
-                        echo "No service module changed for Build."
+                        echo "No service module changed for Docker Build."
                     }
                 }
             }
